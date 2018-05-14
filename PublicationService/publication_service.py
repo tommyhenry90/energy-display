@@ -1,10 +1,9 @@
 from flask import Flask, jsonify
 from flask_restful import reqparse
 import requests
-from mongoengine import StringField, IntField, FloatField, Document, \
-    EmbeddedDocument, ListField, EmbeddedDocumentField, connect
+from data_objects import *
+from csv_to_mongo import *
 
-import datetime
 
 WEATHER_API_KEY = "5cbcafaa45789c29e8f91194dbe498be"
 app = Flask(__name__)
@@ -34,7 +33,7 @@ def get_weather():
 
 @app.route("/energy-mix", methods=["GET"])
 def energy_mix():
-    url = "http://data.un.org/Handlers/DataHandler.ashx?Service=query&Anchor=cmID%3aEL&Applied=&DataMartId=EDATA&UserQuery=Electricity&c=2,5,6,7,8&s=_crEngNameOrderBy:asc,_enID:asc,yr:desc&RequestId=26"
+    pass
 
 
 if __name__ == "__main__":

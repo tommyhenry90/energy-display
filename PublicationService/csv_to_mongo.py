@@ -1,19 +1,23 @@
-import os
 import pandas as pd
 import pymongo
 import json
 
 
-def import_content(filepath, collection_name, usr="admin", pwd="admin"):
+def csv_to_json(filepath):
     data = pd.read_csv(filepath)
-    data_json = json.loads(data.to_json(orient='records'))
+    json_data = json.loads(data.to_json(orient='records'))
+    return json_data
 
+
+def json_to_mongo(json_data, collection_name, usr="admin", pwd="admin"):
     connection = pymongo.MongoClient("ds117540.mlab.com", 17540)
     db = connection["comp9321ass3"]
     db.authenticate(usr, pwd)
     collection = db[collection_name]
-    collection.insert(data_json)
+    collection.insert(json_data)
+
 
 if __name__ == "__main__":
-    filepath = 'elec_data.csv'
-    import_content(filepath, "elec_data")
+    filepath = 'sunshine_data.csv'
+    json_data = csv_to_json(filepath)
+    json_to_mongo(json_data, "sunshine_data")
