@@ -7,10 +7,11 @@
     <link rel="stylesheet" href="/static/index.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
     <script src="/static/index.js"></script>
 </head>
 <body>
-    <form class="form-inline" id="country-search">
+    <form class="form-inline" id="country-search" method="get" action="http://127.0.0.1:5000/electricitymix">
         <label>Enter Country:</label>
         <input type="text" class="form-control" name="country" id="country">
         <button name="btnsearch" class="btn btn-primary" id="btnsearch" onsubmit="search_country()">Search</button>
