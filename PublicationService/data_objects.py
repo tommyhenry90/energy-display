@@ -25,6 +25,25 @@ class EnergyMix(Document):
         self.solar = solar
         self.wind = wind
 
+    def add_element(self, energy_type, amount):
+        if energy_type == "total_energy":
+            self.total_energy = amount
+        elif energy_type == "combustibles":
+            self.combustibles = amount
+        elif energy_type == "geothermal":
+            self.geothermal = amount
+        elif energy_type == "hydro":
+            self.hydro = amount
+        elif energy_type == "nuclear":
+            self.nuclear = amount
+        elif energy_type == "solar":
+            self.solar = amount
+        elif energy_type == "wind":
+            self.wind = amount
+
+    def add_new_element(self, keyword, argument):
+        setattr(self, keyword, argument)
+
 
 class EnergyAccess(Document):
     country = StringField(required=True)
@@ -86,23 +105,33 @@ ENERGY_CATEGORIES = {
     "Wind – Autoproducer":"wind2",
 }
 
+database = []
+
+
+def process_csv(data_input):
+    for entry in data_input:
+        energy_type = entry["Commodity - Transaction"]
+        if energy_type in ENERGY_CATEGORIES:
+            energy_category = ENERGY_CATEGORIES[energy_type]
+            country = entry["Country or Area"]
+            year = entry["Year"]
+            amount = entry["Quantity"]
+            exists = False
+            for mix in database:
+                if mix.country == country and mix.year == year:
+                    setattr(mix, energy_category, amount)
+                    exists = True
+                    break
+            if not exists:
+                mix = EnergyMix
+                mix.country = country
+                mix.year = year
+                setattr(mix, energy_category, amount)
+                database.append(mix)
+
 
 if __name__ == '__main__':
-        data = csv_to_json("data.csv")
-
-        database = []
-
-        for entry in data:
-            energy_type = entry["Commodity - Transaction"]
-            if energy_type in ENERGY_CATEGORIES:
-                country = entry["Country or Area"]
-                year = entry["Year"]
-                for mix_entry in database:
-                    if mix_entry.country == country and mix.year == year:
-                        mix = mix_entry
-                    else:
-                        mix = EnergyMix
-                        mix.country = country
-                        mix.year = year
-                        database.append(mix)
-                if
+    data = csv_to_json("data.csv")
+    process_csv(data)
+    for i in database:
+        print(i.country, i.solar)
