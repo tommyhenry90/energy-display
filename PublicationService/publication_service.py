@@ -36,13 +36,11 @@ def get_weather():
 def energy_mix():
     pass
 
+
 def parse_energy_mix(filepath):
     df = pd.read_csv(filepath)
     for year in range(1990, 2017):
         df2 = df.loc[df["Year"].isin]
-
-
-
 
 
 if __name__ == "__main__":
