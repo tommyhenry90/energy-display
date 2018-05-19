@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <link rel="stylesheet" href="/static/index.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="/static/index.js"></script>
+</head>
+<body>
+    <form class="form-inline" id="country-search">
+        <label>Enter Country:</label>
+        <input type="text" class="form-control" name="country" id="country">
+        <button name="btnsearch" class="btn btn-primary" id="btnsearch" onsubmit="search_country()">Search</button>
+    </form>
+    <div id="graphs">
+        <div id="regions_div"></div>
+        <div id="piechart"></div>
+    </div>
+</body>
+</html>
