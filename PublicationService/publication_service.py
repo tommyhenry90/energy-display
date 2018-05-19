@@ -1,8 +1,9 @@
 from flask import Flask, jsonify
 from flask_restful import reqparse
 import requests
-from data_objects import *
-from csv_to_mongo import *
+from PublicationService.data_objects import *
+from PublicationService.csv_to_mongo import *
+import pandas as pd
 
 
 WEATHER_API_KEY = "5cbcafaa45789c29e8f91194dbe498be"
@@ -34,6 +35,14 @@ def get_weather():
 @app.route("/energy-mix", methods=["GET"])
 def energy_mix():
     pass
+
+def parse_energy_mix(filepath):
+    df = pd.read_csv(filepath)
+    for year in range(1990, 2017):
+        df2 = df.loc[df["Year"].isin]
+
+
+
 
 
 if __name__ == "__main__":

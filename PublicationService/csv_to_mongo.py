@@ -2,6 +2,8 @@ import pandas as pd
 import pymongo
 import json
 
+from PublicationService.data_objects import EnergyMix
+
 
 def csv_to_json(filepath):
     data = pd.read_csv(filepath)
