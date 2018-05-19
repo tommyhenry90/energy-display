@@ -10,7 +10,7 @@ google.charts.setOnLoadCallback(drawRegionsMap);
 function drawRegionsMap() {
     var data = google.visualization.arrayToDataTable([
         ['Country', 'Greenness'],
-        ['China', 200]
+        ['Australia', 200]
     ]);
 
     var options = {};
@@ -26,16 +26,16 @@ google.charts.setOnLoadCallback(drawChart);
 
 function drawChart() {
     var data = google.visualization.arrayToDataTable([
-        ['Task', 'Hours per Day'],
-        ['Work',     11],
-        ['Eat',      2],
-        ['Commute',  2],
-        ['Watch TV', 2],
-        ['Sleep',    7]
+        ['Energy Type', 'kWh'],
+        ['Fossil Fuel',     11],
+        ['Solar',      2],
+        ['Wind',  2],
+        ['Hydro', 2],
+        ['Nuclear',    7]
     ]);
 
     var options = {
-        title: 'My Daily Activities'
+        title: 'Energy Mix'
     };
 
     var chart = new google.visualization.PieChart(document.getElementById('piechart'));

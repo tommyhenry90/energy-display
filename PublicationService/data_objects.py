@@ -143,7 +143,7 @@ def process_population_csv(data_input):
 
 
 if __name__ == '__main__':
-    data = csv_to_json("../DataSources/access_to_electricity.csv")
+    data = csv_to_json("../DataSources/population.csv")
     db = process_population_csv(data)
     connect(
         db="comp9321ass3",
