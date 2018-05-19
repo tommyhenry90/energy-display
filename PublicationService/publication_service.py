@@ -2,7 +2,6 @@ from flask import Flask, jsonify
 from flask_restful import reqparse
 import requests
 from PublicationService.data_objects import *
-from PublicationService.csv_to_mongo import *
 import pandas as pd
 
 

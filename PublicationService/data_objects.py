@@ -1,6 +1,25 @@
 from mongoengine import StringField, IntField, FloatField, Document, \
     EmbeddedDocument, ListField, EmbeddedDocumentField, connect
-from PublicationService.csv_to_mongo import *
+import pandas as pd
+import json
+
+ENERGY_CATEGORIES = {
+    "Electricity - Gross production": "total_energy",
+    "From combustible fuels – Main activity": "combustibles",
+    "Geothermal – Main activity": "geothermal",
+    "Hydro – Main activity": "hydro",
+    "Nuclear – Main activity": "nuclear",
+    "From other sources – Main activity": "other",
+    "Solar – Main activity": "solar",
+    "Wind – Main activity": "wind",
+    "From combustible fuels – Autoproducer": "combustibles",
+    "Geothermal – Autoproducer": "geothermal",
+    "Hydro – Autoproducer": "hydro",
+    "Nuclear - Autoproducer": "nuclear",
+    "From other sources – Autoproducer": "other",
+    "Solar – Autoproducer": "solar",
+    "Wind – Autoproducer": "wind",
+}
 
 
 class EnergyMix(Document):
@@ -10,11 +29,13 @@ class EnergyMix(Document):
     combustibles = FloatField(required=False)
     geothermal = FloatField(required=False)
     hydro = FloatField(required=False)
+    nuclear = FloatField(required=False)
     solar = FloatField(required=False)
     wind = FloatField(required=False)
-    nuclear = FloatField(required=False)
+    other = FloatField(required=False)
 
-    def __init__(self, country, total_energy, combustibles, geothermal, hydro, solar, wind, year, *args, **kwargs):
+    def __init__(self, country=None, year=None, total_energy=0, combustibles=0, geothermal=0, hydro=0,
+                 nuclear=0, solar=0, wind=0, other=0, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.country = country
         self.year = year
@@ -22,27 +43,27 @@ class EnergyMix(Document):
         self.combustibles = combustibles
         self.geothermal = geothermal
         self.hydro = hydro
+        self.nuclear = nuclear
         self.solar = solar
         self.wind = wind
+        self.other = other
+        self.keywords = ["total_energy", "combustibles", "geothermal", "hydro", "nuclear", "solar", "wind", "other"]
 
-    def add_element(self, energy_type, amount):
-        if energy_type == "total_energy":
-            self.total_energy = amount
-        elif energy_type == "combustibles":
-            self.combustibles = amount
-        elif energy_type == "geothermal":
-            self.geothermal = amount
-        elif energy_type == "hydro":
-            self.hydro = amount
-        elif energy_type == "nuclear":
-            self.nuclear = amount
-        elif energy_type == "solar":
-            self.solar = amount
-        elif energy_type == "wind":
-            self.wind = amount
+    def add_value(self, keyword, argument):
+        if keyword in self.keywords:
+            setattr(self, keyword, argument)
+            self.keywords.remove(keyword)
+            return
+        eval_string = "self." + keyword
+        new_value = eval(eval_string) + argument
+        setattr(self, keyword, new_value)
 
-    def add_new_element(self, keyword, argument):
-        setattr(self, keyword, argument)
+    def verify_total(self):
+        total = self.combustibles + self.geothermal + self.hydro + self.nuclear + self.solar + self.wind + self.other
+        if self.total_energy == total:
+            return True
+        else:
+            return self.total_energy - total
 
 
 class EnergyAccess(Document):
@@ -50,7 +71,7 @@ class EnergyAccess(Document):
     year = IntField(required=True)
     energy_access = FloatField(required=True)
 
-    def __init__(self, country, year, energy_access, *args, **kwargs):
+    def __init__(self, country, year, energy_access = -1, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.country = country
         self.year = year
@@ -62,53 +83,21 @@ class Population(Document):
     year = IntField(required=True)
     population = IntField(required=True)
 
-    def __int__(self, country, year, population, *args, **kwargs):
+    def __int__(self, country, year, population=-1, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.country = country
         self.year = year
         self.population = population
 
 
-class CSVStructure:
-    def __init__(self):
-        self.total_energy = "Electricity - Gross production"
-        self.combustibles = "From combustible fuels – Main activity"
-        self.geothermal = "Geothermal – Main activity"
-        self.hydro = "Hydro – Main activity"
-        self.nuclear = "Nuclear – Main activity"
-        self.other = "From other sources – Main activity"
-        self.solar = "Solar – Main activity"
-        self.wind = "Wind – Main activity"
-        self.combustibles2 = "From combustible fuels – Autoproducer"
-        self.hydro2 = "Hydro – Autoproducer"
-        self.other2 = "From other sources – Autoproducer"
-        self.solar2 = "Solar – Autoproducer"
-        self.wind2 = "Wind – Autoproducer"
-        self.losses = "Electricity - Losses"
+def csv_to_json(file_path):
+    data_csv = pd.read_csv(file_path)
+    data_json = json.loads(data_csv.to_json(orient='records'))
+    return data_json
 
 
-ENERGY_CATEGORIES = {
-    "Electricity - Gross production": "total_energy",
-    "From combustible fuels – Main activity": "combustibles",
-    "Geothermal – Main activity":"geothermal",
-    "Hydro – Main activity":"hydro",
-    "Nuclear – Main activity":"nuclear",
-    "From other sources – Main activity":"other",
-    "Solar – Main activity":"solar",
-    "Wind – Main activity":"wind",
-    "From combustible fuels – Autoproducer":"combustibles2",
-    "Geothermal – Autoproducer":"geothermal2",
-    "Hydro – Autoproducer":"hydro2",
-    "Nuclear - Autoproducer":"nuclear2",
-    "From other sources – Autoproducer":"other2",
-    "Solar – Autoproducer":"solar2",
-    "Wind – Autoproducer":"wind2",
-}
-
-database = []
-
-
-def process_csv(data_input):
+def process_energy_mix_csv(data_input):
+    database = []
     for entry in data_input:
         energy_type = entry["Commodity - Transaction"]
         if energy_type in ENERGY_CATEGORIES:
@@ -119,19 +108,48 @@ def process_csv(data_input):
             exists = False
             for mix in database:
                 if mix.country == country and mix.year == year:
-                    setattr(mix, energy_category, amount)
+                    mix.add_value(energy_category, amount)
                     exists = True
                     break
             if not exists:
-                mix = EnergyMix
+                mix = EnergyMix()
                 mix.country = country
                 mix.year = year
-                setattr(mix, energy_category, amount)
+                mix.add_value(energy_category, amount)
                 database.append(mix)
+    return database
+
+
+def process_access_to_electricity_csv(data_input):
+    database = []
+    for entry in data_input:
+        country = entry["Country Name"]
+        for year in range(1990, 2017):
+            percentage = entry[str(year)]
+            access = EnergyAccess(country, year, percentage)
+            database.append(access)
+    return database
+
+
+def process_population_csv(data_input):
+    database = []
+    for entry in data_input:
+        country = entry["Country Name"]
+        for year in range(1990, 2017):
+            population = entry[str(year)]
+            population_entry = Population(country, year, population)
+            database.append(population_entry)
+    return database
 
 
 if __name__ == '__main__':
-    data = csv_to_json("data.csv")
-    process_csv(data)
-    for i in database:
-        print(i.country, i.solar)
+    data = csv_to_json("../DataSources/access_to_electricity.csv")
+    db = process_population_csv(data)
+    connect(
+        db="comp9321ass3",
+        username="admin",
+        password="admin",
+        host="ds117540.mlab.com",
+        port=17540
+    )
+    Population.objects.insert(db)
