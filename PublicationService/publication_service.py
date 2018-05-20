@@ -1,8 +1,8 @@
 from flask import Flask, jsonify
 from flask_restful import reqparse
 import requests
-from PublicationService.data_objects import *
-import pandas as pd
+from PublicationService.data_objects import EnergyMix, EnergyAccess, Population
+from mongoengine import connect
 
 
 WEATHER_API_KEY = "5cbcafaa45789c29e8f91194dbe498be"
@@ -31,14 +31,8 @@ def get_weather():
     return jsonify(r.json()), 200
 
 
-@app.route("/energymix", methods=["GET"])
-def energy_mix():
-    parser = reqparse.RequestParser()
-    parser.add_argument('country', type=str)
-    args = parser.parse_args()
-    country = args.get('country')
-    year = 2015
-
+@app.route("/energymix/<country>/<year>", methods=["GET"])
+def energy_mix(country, year=2015):
     connect(
         db="comp9321ass3",
         username="admin",
@@ -48,10 +42,12 @@ def energy_mix():
     )
 
     mix = None
-    for e in EnergyMix.objects(country=country, year=2015):
+    for e in EnergyMix.objects(country=country, year=year):
         mix = e
     if not mix:
-        return jsonify(country=country, year=year), 404
+        response = jsonify(country=country, year=year)
+        response.headers._list.append(('Access-Control-Allow-Origin', '*'))
+        return response, 404
     energy_mix = {
         "country": country,
         "year": year,
@@ -70,14 +66,8 @@ def energy_mix():
     return response, 200
 
 
-@app.route("/energyaccess", methods=["GET"])
-def energy_access():
-    parser = reqparse.RequestParser()
-    parser.add_argument('country', type=str)
-    args = parser.parse_args()
-    country = args.get('country')
-    year = 2015
-
+@app.route("/energyaccess/<country>/<year>", methods=["GET"])
+def energy_access(country, year):
     connect(
         db="comp9321ass3",
         username="admin",
@@ -87,10 +77,12 @@ def energy_access():
     )
 
     access = None
-    for e in EnergyAccess.objects(country=country, year=2015):
+    for e in EnergyAccess.objects(country=country, year=year):
         access = e
     if not access:
-        return jsonify(country=country, year=year), 404
+        response = jsonify(country=country, year=year)
+        response.headers._list.append(('Access-Control-Allow-Origin', '*'))
+        return response, 404
 
     energy_access = {
         "country": country,
@@ -102,14 +94,8 @@ def energy_access():
     return response, 200
 
 
-@app.route("/population", methods=["GET"])
-def population():
-    parser = reqparse.RequestParser()
-    parser.add_argument('country', type=str)
-    args = parser.parse_args()
-    country = args.get('country')
-    year = 2015
-
+@app.route("/population/<country>/<year>", methods=["GET"])
+def population(country, year):
     connect(
         db="comp9321ass3",
         username="admin",
@@ -119,10 +105,12 @@ def population():
     )
 
     pop = None
-    for p in Population.objects(country=country, year=2015):
+    for p in Population.objects(country=country, year=year):
         pop = p
     if not pop:
-        return jsonify(country=country, year=year), 404
+        response = jsonify(country=country, year=year)
+        response.headers._list.append(('Access-Control-Allow-Origin', '*'))
+        return response, 404
 
     population_response = {
         "country": country,
@@ -135,4 +123,4 @@ def population():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5001)

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>ATI - Electricity Data</title>
 
     <link rel="stylesheet" href="/static/index.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -11,24 +11,43 @@
     <script src="/static/index.js"></script>
 </head>
 <body>
-    <form class="form-inline" id="country-search" method="get" action="http://127.0.0.1:5000/electricitymix">
-        <label>Enter Country:</label>
-        <input type="text" class="form-control" name="country" id="country" title="country">
-        <button name="btnsearch" class="btn btn-primary" id="btnsearch" onsubmit="search_country()">Search</button>
-    </form>
+    <label>Country</label> <input type="text" name="country-search" id="country"/>
+    <label>Year</label> <input type="text" name="year-search" id="year"/>
+    <button class="btn btn-info" onclick="search_country()">Search</button>
     <table class="table table-responsive" id="energydata"></table>
     <script>
         function search_country() {
-                $.get( "http://localhost:5000/energymix" + document.getElementById('country').value, function( data ) {
-                    $('#energydata').empty();
-                    $('#energydata').append('<td><tr>Country</tr><tr>Year</tr><tr>Total</tr><tr>Fossil Fuel</tr>' +
-                        '<tr>Solar</tr></td>');
-                    data.forEach(function(x) {
-                        $('#regiondata').append("<td><tr>"+x.country+"</tr><tr>"+x.year+"</tr>" +
-                            "<tr>"+x.total_energy+"</tr><tr>"+x.combustibes+"</tr><tr>"+x.year+"</tr></td>");
-                    });
+                $('#energydata').empty();
+                $('#energydata').append('<thead><tr><th>Element</th><th>Value</th><th>Units</th></tr></thead><tbody>');
+                $.get( "http://localhost:5000/energymix/" +
+                    document.getElementById('country').value + "/" +
+                    document.getElementById('year').value, function( data ) {
+                    console.log(data);
+                    $('#energydata').append('<tr><td>Country</td><td>'+data.country+'</td><td>None</td></tr>' +
+                        '<tr><td>Year</td><td>'+data.year+'</td><td>None</td></tr>' +
+                        '<tr><td>Total Energy</td><td>'+data.total_energy+'</td><td>GWh</td></tr>' +
+                        '<tr><td>Combustibles</td><td>'+data.combustibles+'</td><td>GWh</td></tr>' +
+                        '<tr><td>Geothermal</td><td>'+data.geothermal+'</td><td>GWh</td></tr>' +
+                        '<tr><td>Hydro</td><td>'+data.hydro+'</td><td>GWh</td></tr>' +
+                        '<tr><td>Nuclear</td><td>'+data.nuclear+'</td><td>GWh</td></tr>' +
+                        '<tr><td>Solar</td><td>'+data.solar+'</td><td>GWh</td></tr>' +
+                        '<tr><td>Wind</td><td>'+data.wind+'</td><td>GWh</td></tr>' +
+                        '<tr><td>Other</td><td>'+data.other+'</td><td>GWh</td></tr>');
+                });
+                $.get( "http://localhost:5000/energyaccess/" +
+                    document.getElementById('country').value + "/" +
+                    document.getElementById('year').value, function( data ) {
+                    console.log(data);
+                    $('#energydata').append('<tr><td>Energy Access</td><td>'+data.energy_access+'</td><td>%</td></tr>');
+                });
+                $.get( "http://localhost:5000/population/" +
+                    document.getElementById('country').value + "/" +
+                    document.getElementById('year').value, function( data ) {
+                    console.log(data);
+                    $('#energydata').append('<tr><td>Population</td><td>'+data.population+'</td><td>Number</td></tr>');
                 });
             }
+
     </script>
     <div id="graphs">
         <div id="regions_div"></div>
