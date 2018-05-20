@@ -78,6 +78,18 @@ class EnergyAccess(Document):
         self.energy_access = energy_access
 
 
+class EnergyConsumption(Document):
+    country = StringField(required=True)
+    year = IntField(required=True)
+    energy_consumption = FloatField()
+
+    def __init__(self, country, year, energy_consumption = None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.country = country
+        self.year = year
+        self.energy_consumption = energy_consumption
+
+
 class Population(Document):
     country = StringField(required=True)
     year = IntField(required=True)
