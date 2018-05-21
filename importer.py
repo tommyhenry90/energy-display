@@ -13,7 +13,7 @@ def reset():
     )
     EnergyConsumption.objects().delete()
 
-    
+
 def upload_access():
 
     tree1 = ET.parse('dataset/access.xml')
@@ -89,7 +89,7 @@ def upload_consumption():
         print(country, year, amount)
 
 
-def mix():
+def mix(country, year):
     connect(
         db="comp9321ass3",
         username="admin",
@@ -97,9 +97,8 @@ def mix():
         host="ds117540.mlab.com",
         port=17540
     )
-    EnergyReport.objects().delete()
 
-    for base in EnergyMix.objects(country='Indonesia'):
+    for base in EnergyMix.objects(country=country, year=year):
         pop = None
         access = None
         consumption = None
@@ -135,20 +134,3 @@ def mix():
         report = EnergyReport(base.country, base.year, pop, access, base.total_energy, sources, consumption)
 
         report.save()
-
-#
-#
-# def check():
-#     connect(
-#         db="comp9321ass3",
-#         username="admin",
-#         password="admin",
-#         host="ds117540.mlab.com",
-#         port=17540
-#     )
-#     for base in EnergyReport.objects():
-#         print(base.country, base.year)
-#
-#         for source in base.production_source:
-#             percent = round(source.amount/base.production_amount * 100,2)
-#             print(' -',source.energy_type, percent)

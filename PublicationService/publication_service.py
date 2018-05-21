@@ -3,7 +3,8 @@ from flask_restful import reqparse
 import requests
 from PublicationService.data_objects import EnergyMix, EnergyAccess, Population,EnergyConsumption
 from mongoengine import connect
-
+from importer import mix
+from model import EnergyReport, EnergySource
 
 WEATHER_API_KEY = "5cbcafaa45789c29e8f91194dbe498be"
 app = Flask(__name__)
@@ -148,6 +149,75 @@ def consumption(country, year):
     response = jsonify(population_response)
     response.headers._list.append(('Access-Control-Allow-Origin', '*'))
     return response, 200
+
+
+@app.route("/reports/<country>/<year>", methods=["GET"])
+def reports(country,year):
+    connect(
+        db="comp9321ass3",
+        username="admin",
+        password="admin",
+        host="ds117540.mlab.com",
+        port=17540
+    )
+
+    if not EnergyReport.object(country=country,year=year):
+        mix(country, year)
+    result = None
+    for base in EnergyReport.objects(country=country,year=year):
+        sources = list()
+
+        for source in base.production_source:
+            percent = round(source.amount/base.production_amount,2)
+            sources.append({
+                'type':source.energy_type,
+                'amount': source.amount,
+                'percent': percent
+            })
+
+        cons_per = base.consumption_amount / (base.population * base.energy_access / 100)
+
+        year_next = year + 1
+        year_prev = year - 1
+
+        next_report = None
+        prev_report = None
+
+        if EnergyReport.object(country=country, year=year_next):
+            next_report = "/".join('/reports', base.country, year_next)
+
+        if EnergyReport.object(country=country, year=year_prev):
+            prev_report = "/".join('/reports', base.country, year_prev)
+
+        delta = base.production_amount - base.consumption_amount
+        result = {
+            "country": base.country,
+            "year": base.year,
+            "population": base.population,
+            "energy_access": base.energy_access,
+            "consumption": base.consumption_amount,
+            "production": base.production_amount,
+            "sources": sources,
+            "delta_energy": delta,
+            "consumption_percapita": cons_per,
+            "link": {
+                "prev": prev_report,
+                "next": next_report
+            }
+
+        }
+    if result is None:
+        response = jsonify(result)
+        response.headers._list.append(('Access-Control-Allow-Origin', '*'))
+        return response, 200
+    else:
+        result = {
+            "country": country,
+            "year": year
+        }
+        response = jsonify(result)
+
+        return response, 404
 
 
 if __name__ == "__main__":
