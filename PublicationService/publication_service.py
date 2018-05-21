@@ -170,7 +170,7 @@ def reports(country,year):
         for source in base.production_source:
             percent = round(source.amount/base.production_amount,2)
             sources.append({
-                'type':source.energy_type,
+                'type': source.energy_type,
                 'amount': source.amount,
                 'percent': percent
             })
@@ -216,9 +216,8 @@ def reports(country,year):
             "year": year
         }
         response = jsonify(result)
-
         return response, 404
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5001)
+    app.run(debug=True, port=5000)

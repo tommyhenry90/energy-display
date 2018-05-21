@@ -1,4 +1,4 @@
-from mongoengine import StringField,IntField, FloatField, Document, EmbeddedDocument,  EmbeddedDocumentListField
+from mongoengine import StringField, IntField, FloatField, Document, EmbeddedDocument, EmbeddedDocumentListField
 
 
 class EnergySource(EmbeddedDocument):
@@ -22,7 +22,8 @@ class EnergyReport(Document):
     production_source = EmbeddedDocumentListField(EnergySource)
     consumption_amount = FloatField(min_value=0.00)
 
-    def __init__(self,country,year,population=None,energy_access=None,production_amount=None,production_source=[],consumption_amount=None, *args, **kwargs):
+    def __init__(self, country, year, population=None, energy_access=None, production_amount=None,
+                 production_source=[], consumption_amount=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.country = country
         self.year = year
@@ -33,7 +34,3 @@ class EnergyReport(Document):
         self.production_amount = production_amount
         self.production_source = production_source
         self.consumption_amount = consumption_amount
-
-
-
-

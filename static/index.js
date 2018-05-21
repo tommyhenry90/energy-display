@@ -27,11 +27,13 @@ google.charts.setOnLoadCallback(drawChart);
 function drawChart() {
     var data = google.visualization.arrayToDataTable([
         ['Energy Type', 'kWh'],
-        ['Fossil Fuel',     11],
-        ['Solar',      2],
-        ['Wind',  2],
-        ['Hydro', 2],
-        ['Nuclear',    7]
+        ['Combustibles', data.combustibles],
+        ['Geothermal', data.geothermal],
+        ['Hydro', data.hydro],
+        ['Nuclear', data.nuclear],
+        ['Solar', data.solar],
+        ['Wind', data.wind],
+        ['Other', data.other]
     ]);
 
     var options = {

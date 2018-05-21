@@ -1,7 +1,8 @@
 from mongoengine import connect
 from model import EnergySource, EnergyReport
-from PublicationService.data_objects import EnergyConsumption,EnergyMix,Population,EnergyAccess
+from PublicationService.data_objects import EnergyConsumption, EnergyMix, Population, EnergyAccess
 import xml.etree.ElementTree as ET
+
 
 def reset():
     connect(
