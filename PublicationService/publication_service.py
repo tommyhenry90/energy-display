@@ -1,7 +1,7 @@
 from flask import Flask, jsonify
 from flask_restful import reqparse
 import requests
-from PublicationService.data_objects import EnergyMix, EnergyAccess, Population
+from PublicationService.data_objects import EnergyMix, EnergyAccess, Population,EnergyConsumption
 from mongoengine import connect
 
 
@@ -116,6 +116,34 @@ def population(country, year):
         "country": country,
         "year": year,
         "population": pop.population
+    }
+    response = jsonify(population_response)
+    response.headers._list.append(('Access-Control-Allow-Origin', '*'))
+    return response, 200
+
+
+@app.route("/consumption/<country>/<year>", methods=["GET"])
+def consumption(country, year):
+    connect(
+        db="comp9321ass3",
+        username="admin",
+        password="admin",
+        host="ds117540.mlab.com",
+        port=17540
+    )
+
+    cons = None
+    for p in EnergyConsumption.objects(country=country, year=year):
+        cons = p
+    if not cons:
+        response = jsonify(country=country, year=year)
+        response.headers._list.append(('Access-Control-Allow-Origin', '*'))
+        return response, 404
+
+    population_response = {
+        "country": country,
+        "year": year,
+        "population": cons.energy_consumption
     }
     response = jsonify(population_response)
     response.headers._list.append(('Access-Control-Allow-Origin', '*'))

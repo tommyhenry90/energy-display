@@ -69,9 +69,9 @@ class EnergyMix(Document):
 class EnergyAccess(Document):
     country = StringField(required=True)
     year = IntField(required=True)
-    energy_access = FloatField(required=True)
+    energy_access = FloatField()
 
-    def __init__(self, country, year, energy_access = -1, *args, **kwargs):
+    def __init__(self, country, year, energy_access=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.country = country
         self.year = year
@@ -83,7 +83,7 @@ class EnergyConsumption(Document):
     year = IntField(required=True)
     energy_consumption = FloatField()
 
-    def __init__(self, country, year, energy_consumption = None, *args, **kwargs):
+    def __init__(self, country, year, energy_consumption=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.country = country
         self.year = year
@@ -93,9 +93,9 @@ class EnergyConsumption(Document):
 class Population(Document):
     country = StringField(required=True)
     year = IntField(required=True)
-    population = IntField(required=True)
+    population = IntField()
 
-    def __int__(self, country, year, population=-1, *args, **kwargs):
+    def __int__(self, country, year, population=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.country = country
         self.year = year
