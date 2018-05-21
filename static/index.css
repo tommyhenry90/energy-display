@@ -5,16 +5,32 @@
 }
 
 #regions_div{
-    height:50vh;
-    width:50vw;
+    width:70vw;
+    height: 50vh;
 }
 
 #piechart{
-    height:50vh;
-    width:50vh;
+    width:30vw;
+    height: 50vh;
 }
 
 #country-search{
     display:flex;
     align-self:center;
+}
+
+#country-input{
+    padding-left: 10vw;
+    padding-right: 10vw;
+    padding-top: 1vh;
+}
+
+#button-press{
+    text-align: right;
+    padding-top: 1vh;
+}
+
+#additional-data{
+    text-align: center;
+    padding-top: 9vh;
 }

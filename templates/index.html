@@ -4,21 +4,48 @@
     <meta charset="UTF-8">
     <title>ATI - Electricity Data</title>
     <link rel="stylesheet" href="/static/index.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
 </head>
 <body>
-    <label>Country</label> <input type="text" name="country-search" id="country"/>
-    <label>Year</label> <input type="text" name="year-search" id="year"/>
-    <button class="btn btn-info" onclick="search_country()">Search</button>
-    <table class="table table-responsive" id="energydata"></table>
+    <div id="country-input">
+        <div class="form-row">
+            <div class="col">
+                <label for="country">Country</label>
+                <input class="form-control form-control-lg" type="text" name="country-search" id="country" placeholder="e.g. Australia"/>
+            </div>
+            <div class="col">
+                <label for="year">Year</label>
+                <select class="form-control form-control-lg" name="year-search" id="year"></select>
+            </div>
+        </div>
+        <div id="button-press">
+            <button id="search-button" class="btn btn-primary btn-lg" onclick="search_country()">Search</button>
+        </div>
+    </div>
     <div id="graphs">
         <div id="regions_div"></div>
         <div id="piechart"></div>
     </div>
+    <div id="additional-data">
+        <div id="population"></div>
+        <div id="energy-access"></div>
+        <div id="total-energy"></div>
+    </div>
+{#    <div id="additional-data">#}
+{#        <table class="table table-responsive" id="energydata"></table>#}
+{#    </div>#}
 </body>
 <footer>
+    <script>
+        $(function(){
+            var $select = $('#year');
+            for (i=2015;i>=1990;i--){
+                $select.append($('<option></option>').val(i).html(i))
+            }
+        });
+    </script>
     <script>
         google.charts.load('current', {'packages':['corechart']});
         {#google.charts.setOnLoadCallback(search_country);#}
@@ -31,9 +58,7 @@
                     ['Country', 'Greenness'],
                     [document.getElementById('country').value, 200]
                 ]);
-
                 var options = {};
-
                 var chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
 
                 chart.draw(data, options);
@@ -43,16 +68,8 @@
                     document.getElementById('country').value + "/" +
                     document.getElementById('year').value, function( data ) {
                     console.log(data);
-                    $('#energydata').append('<tr><td>Country</td><td>'+data.country+'</td><td>None</td></tr>' +
-                        '<tr><td>Year</td><td>'+data.year+'</td><td>None</td></tr>' +
-                        '<tr><td>Total Energy</td><td>'+data.total_energy+'</td><td>GWh</td></tr>');
-                    {#    '<tr><td>Combustibles</td><td>'+data.combustibles+'</td><td>GWh</td></tr>' +#}
-                    {#    '<tr><td>Geothermal</td><td>'+data.geothermal+'</td><td>GWh</td></tr>' +#}
-                    {#    '<tr><td>Hydro</td><td>'+data.hydro+'</td><td>GWh</td></tr>' +#}
-                    {#    '<tr><td>Nuclear</td><td>'+data.nuclear+'</td><td>GWh</td></tr>' +#}
-                    {#    '<tr><td>Solar</td><td>'+data.solar+'</td><td>GWh</td></tr>' +#}
-                    {#    '<tr><td>Wind</td><td>'+data.wind+'</td><td>GWh</td></tr>' +#}
-                    {#    '<tr><td>Other</td><td>'+data.other+'</td><td>GWh</td></tr>');#}
+                    $('#energydata').append('<tr><td>Total Energy</td><td>'+data.total_energy+'</td><td>GWh</td></tr>');
+
                     var chart_data = new google.visualization.arrayToDataTable([
                         ['Energy Type', 'kWh'],
                         ['Combustibles', data.combustibles],
@@ -75,12 +92,16 @@
                     document.getElementById('year').value, function( data ) {
                     console.log(data);
                     $('#energydata').append('<tr><td>Energy Access</td><td>'+data.energy_access+'</td><td>%</td></tr>');
+                    $('#energy-access').empty()
+                    $('#energy-access').append('<h2>'+Math.round(data.energy_access)+'% of these people had access to electricity')
                 });
                 $.get( "http://localhost:5000/population/" +
                     document.getElementById('country').value + "/" +
                     document.getElementById('year').value, function( data ) {
                     console.log(data);
                     $('#energydata').append('<tr><td>Population</td><td>'+data.population+'</td><td>Number</td></tr>');
+                    $('#population').empty()
+                    $('#population').append('<h2>The population of '+data.country+' in '+data.year+' was '+ Math.round(data.population / 1000000) +' million<h2>')
                 });
             }
     </script>
