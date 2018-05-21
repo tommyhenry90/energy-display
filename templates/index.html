@@ -10,12 +10,12 @@
 </head>
 <body>
     <div id="country-input">
-        <div class="form-row">
-            <div class="col">
+        <div class="row">
+            <div class="col-lg-6">
                 <label for="country">Country</label>
                 <input class="form-control form-control-lg" type="text" name="country-search" id="country" placeholder="e.g. Australia"/>
             </div>
-            <div class="col">
+            <div class="col-lg-6">
                 <label for="year">Year</label>
                 <select class="form-control form-control-lg" name="year-search" id="year"></select>
             </div>
@@ -25,17 +25,14 @@
         </div>
     </div>
     <div id="graphs">
-        <div id="regions_div"></div>
-        <div id="piechart"></div>
+        <div id="regions_div" class="col-lg-6"></div>
+        <div id="piechart" class="col-lg-6"></div>
     </div>
     <div id="additional-data">
         <div id="population"></div>
         <div id="energy-access"></div>
         <div id="total-energy"></div>
     </div>
-{#    <div id="additional-data">#}
-{#        <table class="table table-responsive" id="energydata"></table>#}
-{#    </div>#}
 </body>
 <footer>
     <script>
@@ -54,23 +51,19 @@
             'mapsApiKey': 'AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY'
         });
         function search_country() {
-                var data = new google.visualization.arrayToDataTable([
-                    ['Country', 'Greenness'],
-                    [document.getElementById('country').value, 200]
-                ]);
-                var options = {};
-                var chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
-
-                chart.draw(data, options);
-                $('#energydata').empty();
-                $('#energydata').append('<thead><tr><th>Element</th><th>Value</th><th>Units</th></tr></thead><tbody>');
-                $.get( "http://localhost:5000/energymix/" +
-                    document.getElementById('country').value + "/" +
-                    document.getElementById('year').value, function( data ) {
+                var country = document.getElementById('country').value;
+                var year = document.getElementById('year').value;
+                $.get( "http://localhost:5000/energymix/" + country + "/" + year, function(data){
                     console.log(data);
-                    $('#energydata').append('<tr><td>Total Energy</td><td>'+data.total_energy+'</td><td>GWh</td></tr>');
+                    var map_data = new google.visualization.arrayToDataTable([
+                        ['Country', 'Greenness'],
+                        [country, Math.round(100*(data.geothermal + data.hydro + data.solar + data.wind) / data.total_energy)]
+                    ]);
+                    var map_options={};
+                    var map_chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
+                    map_chart.draw(map_data, map_options);
 
-                    var chart_data = new google.visualization.arrayToDataTable([
+                    var pie_data = new google.visualization.arrayToDataTable([
                         ['Energy Type', 'kWh'],
                         ['Combustibles', data.combustibles],
                         ['Geothermal', data.geothermal],
@@ -80,26 +73,20 @@
                         ['Wind', data.wind],
                         ['Unclassified', data.other]
                     ]);
-                    var options = {
+                    var pie_options = {
                         title: 'Energy Mix'
                     };
-                    var chart = new google.visualization.PieChart(document.getElementById('piechart'));
-                    chart.draw(chart_data, options);
+                    var pie_chart = new google.visualization.PieChart(document.getElementById('piechart'));
+                    pie_chart.draw(pie_data, pie_options);
                 });
 
-                $.get( "http://localhost:5000/energyaccess/" +
-                    document.getElementById('country').value + "/" +
-                    document.getElementById('year').value, function( data ) {
+                $.get( "http://localhost:5000/energyaccess/" + country + "/" + year, function( data ) {
                     console.log(data);
-                    $('#energydata').append('<tr><td>Energy Access</td><td>'+data.energy_access+'</td><td>%</td></tr>');
                     $('#energy-access').empty()
                     $('#energy-access').append('<h2>'+Math.round(data.energy_access)+'% of these people had access to electricity')
                 });
-                $.get( "http://localhost:5000/population/" +
-                    document.getElementById('country').value + "/" +
-                    document.getElementById('year').value, function( data ) {
+                $.get( "http://localhost:5000/population/" + country + "/" + year, function( data ) {
                     console.log(data);
-                    $('#energydata').append('<tr><td>Population</td><td>'+data.population+'</td><td>Number</td></tr>');
                     $('#population').empty()
                     $('#population').append('<h2>The population of '+data.country+' in '+data.year+' was '+ Math.round(data.population / 1000000) +' million<h2>')
                 });
