@@ -149,8 +149,10 @@ def consumption(country, year):
     response = jsonify(population_response)
     response.headers._list.append(('Access-Control-Allow-Origin', '*'))
     return response, 200
+
+
 @app.route("/greens/<year>", methods=["GET"])
-def greeness(year):
+def greens(year):
     connect(
         db="comp9321ass3",
         username="admin",
@@ -159,13 +161,11 @@ def greeness(year):
         port=17540
     )
     result = list()
+    result.append(['country', 'greenness'])
     for data in EnergyMix.objects(year=year):
 
         green_point = round(100 * (data.geothermal + data.hydro + data.solar + data.wind) / data.total_energy)
-        result.append({
-            'country': data.country,
-            'score': green_point
-        })
+        result.append([data.country, green_point])
 
     response = jsonify(result)
     response.headers._list.append(('Access-Control-Allow-Origin', '*'))
@@ -248,6 +248,7 @@ def recaps(country,year):
         response = jsonify(result)
         return response, 404
 
+
 @app.route("/countries/<parameter>", methods=["GET"])
 def countries_list(parameter):
     connect(
@@ -263,6 +264,15 @@ def countries_list(parameter):
     response.headers._list.append(('Access-Control-Allow-Origin', '*'))
     return response, 200
 
+@app.route("/growths/<country>", methods=["GET"])
+def growths(country):
+    connect(
+        db="comp9321ass3",
+        username="admin",
+        password="admin",
+        host="ds117540.mlab.com",
+        port=17540
+    )
 
 
 
