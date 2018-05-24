@@ -273,7 +273,101 @@ def growths(country):
         host="ds117540.mlab.com",
         port=17540
     )
+    result = list()
+    result.append(['year','combustibles', "geothermal", "hydro", "nuclear", "solar", "wind", "other"])
+    # "combustibles": mix.combustibles,
+    # "geothermal": mix.geothermal,
+    # "hydro": mix.hydro,
+    # "nuclear": mix.nuclear,
+    # "solar": mix.solar,
+    # "wind": mix.wind,
+    # "other": mix.other
+    for annual in EnergyMix.objects(country__iexact=country):
 
+        result.append([
+            annual.year,
+            round(annual.combustibles / annual.total_energy * 100, 2),
+            round(annual.geothermal / annual.total_energy * 100, 2),
+            round(annual.hydro / annual.total_energy * 100, 2),
+            round(annual.nuclear / annual.total_energy * 100, 2),
+            round(annual.solar / annual.total_energy * 100, 2),
+            round(annual.wind / annual.total_energy * 100, 2),
+            round(annual.other / annual.total_energy * 100, 2)
+        ])
+        # source = list()
+
+        # # wind
+        # source.append({
+        #     'type' : 'wind',
+        #     'unit' : 'Gwh',
+        #     'amount': annual.wind,
+        #     'percent': round(annual.wind/annual.total_energy * 100,2)
+        #
+        # })
+        #
+        # # hydro
+        # source.append({
+        #     'type': 'hydro',
+        #     'unit': 'Gwh',
+        #     'amount': annual.hydro,
+        #     'percent': round(annual.hydro / annual.total_energy * 100, 2)
+        #
+        # })
+        #
+        # # solar
+        # source.append({
+        #     'type': 'solar',
+        #     'unit': 'Gwh',
+        #     'amount': annual.solar,
+        #     'percent': round(annual.solar / annual.total_energy * 100, 2)
+        #
+        # })
+        #
+        # # combustibles
+        # source.append({
+        #     'type': 'combustibles',
+        #     'unit': 'Gwh',
+        #     'amount': annual.combustibles,
+        #     'percent': round(annual.combustibles / annual.total_energy * 100, 2)
+        #
+        # })
+        #
+        # # nuclear
+        # source.append({
+        #     'type': 'nuclear',
+        #     'unit': 'Gwh',
+        #     'amount': annual.nuclear,
+        #     'percent': round(annual.nuclear / annual.total_energy * 100, 2)
+        #
+        # })
+        #
+        # # geothermal
+        # source.append({
+        #     'type': 'geothermal',
+        #     'unit': 'Gwh',
+        #     'amount': annual.geothermal,
+        #     'percent': round(annual.geothermal / annual.total_energy * 100, 2)
+        #
+        # })
+        #
+        # # other
+        # source.append({
+        #     'type': 'other',
+        #     'unit': 'Gwh',
+        #     'amount': annual.other,
+        #     'percent': round(annual.other / annual.total_energy * 100, 2)
+        #
+        # })
+        #
+        #
+        # result.append({
+        #     'year': annual.year,
+        #     'sources': source
+        # })
+
+    response = jsonify(result)
+    response.headers._list.append(('Access-Control-Allow-Origin', '*'))
+    return response, 200
 
 
 
