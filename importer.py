@@ -98,7 +98,7 @@ def mix(country, year):
         host="ds117540.mlab.com",
         port=17540
     )
-
+    EnergyReport.objects(country=country, year=year).delete()
     for base in EnergyMix.objects(country=country, year=year):
         pop = None
         access = None
@@ -135,3 +135,6 @@ def mix(country, year):
         report = EnergyReport(base.country, base.year, pop, access, base.total_energy, sources, consumption)
 
         report.save()
+
+if __name__ == '__main__':
+    mix('Indonesia',2015)

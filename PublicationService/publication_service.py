@@ -151,8 +151,8 @@ def consumption(country, year):
     return response, 200
 
 
-@app.route("/reports/<country>/<year>", methods=["GET"])
-def reports(country,year):
+@app.route("/recaps/<country>/<year>", methods=["GET"])
+def recaps(country,year):
     connect(
         db="comp9321ass3",
         username="admin",
@@ -161,14 +161,14 @@ def reports(country,year):
         port=17540
     )
 
-    if not EnergyReport.objects(country=country,year=year):
+    if not EnergyReport.objects(country=country, year=year):
         mix(country, year)
     result = None
-    for base in EnergyReport.objects(country=country,year=year):
+    for base in EnergyReport.objects(country=country, year=year):
         sources = list()
 
         for source in base.production_source:
-            percent = round(source.amount/base.production_amount,2)
+            percent = round(source.amount/base.production_amount, 2)
             sources.append({
                 'type': source.energy_type,
                 'amount': source.amount,
@@ -193,7 +193,7 @@ def reports(country,year):
 
 
         }
-    if result is None:
+    if result is not None:
         response = jsonify(result)
         response.headers._list.append(('Access-Control-Allow-Origin', '*'))
         return response, 200
