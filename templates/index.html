@@ -61,15 +61,17 @@
         function search_country() {
                 var country = document.getElementById('country').value;
                 var year = document.getElementById('year').value;
+
+                $.get( "http://localhost:5000/greens/" + year, function(data){
+                    {#console.log(data);#}
+                    var map_data = new google.visualization.arrayToDataTable(data);
+                        var map_options={'width': 1000, keepAspectRatio: true, magnifyingGlass:{enable: true, zoomFactor: 7.5}};
+                        var map_chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
+                        map_chart.draw(map_data, map_options);
+                });
+
                 $.get( "http://localhost:5000/energymix/" + country + "/" + year, function(data){
                     console.log(data);
-                    var map_data = new google.visualization.arrayToDataTable([
-                        ['Country', 'Greenness'],
-                        [country, Math.round(100*(data.geothermal + data.hydro + data.solar + data.wind) / data.total_energy)]
-                    ]);
-                    var map_options={'width': 1000, keepAspectRatio: true, magnifyingGlass:{enable: true, zoomFactor: 7.5}};
-                    var map_chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
-                    map_chart.draw(map_data, map_options);
 
                     var pie_data = new google.visualization.arrayToDataTable([
                         ['Energy Type', 'kWh'],
