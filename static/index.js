@@ -13,7 +13,7 @@ function drawRegionsMap() {
         ['Australia', 200]
     ]);
 
-    var options = {};
+    var options = {'height': 694, 'width': 1112, magnifyingGlass:{enable: true, zoomFactor: 7.5}}
 
     var chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
 

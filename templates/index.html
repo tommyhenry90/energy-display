@@ -9,29 +9,37 @@
     <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
 </head>
 <body>
-    <div id="country-input">
-        <div class="row">
-            <div class="col-lg-6">
-                <label for="country">Country</label>
-                <input class="form-control form-control-lg" type="text" name="country-search" id="country" placeholder="e.g. Australia"/>
+    <div class="container">
+        <div id="country-input">
+            <div class="row">
+                <div class="col-lg-6">
+                    <label for="country">Country</label>
+                    <input class="form-control form-control-lg" type="text" name="country-search" id="country" placeholder="e.g. Australia"/>
+                </div>
+                <div class="col-lg-6">
+                    <label for="year">Year</label>
+                    <select class="form-control form-control-lg" name="year-search" id="year"></select>
+                </div>
             </div>
-            <div class="col-lg-6">
-                <label for="year">Year</label>
-                <select class="form-control form-control-lg" name="year-search" id="year"></select>
+            <div id="button-press">
+                <button id="search-button" class="btn btn-primary btn-lg" onclick="search_country()">Search</button>
             </div>
         </div>
-        <div id="button-press">
-            <button id="search-button" class="btn btn-primary btn-lg" onclick="search_country()">Search</button>
+        <br><br>
+        <div id="graphs">
+            <div class="row">
+                <div id="regions_div" class="col-lg-12"></div>
+            </div>
+            <br><br>
+            <div class="row">
+                <div id="piechart" class="col-lg-12"></div>
+            </div>
         </div>
-    </div>
-    <div id="graphs">
-        <div id="regions_div" class="col-lg-6"></div>
-        <div id="piechart" class="col-lg-6"></div>
-    </div>
-    <div id="additional-data">
-        <div id="population"></div>
-        <div id="energy-access"></div>
-        <div id="total-energy"></div>
+        <div id="additional-data">
+            <div id="population"></div>
+            <div id="energy-access"></div>
+            <div id="total-energy"></div>
+        </div>
     </div>
 </body>
 <footer>
@@ -59,7 +67,7 @@
                         ['Country', 'Greenness'],
                         [country, Math.round(100*(data.geothermal + data.hydro + data.solar + data.wind) / data.total_energy)]
                     ]);
-                    var map_options={};
+                    var map_options={'width': 1000, keepAspectRatio: true, magnifyingGlass:{enable: true, zoomFactor: 7.5}};
                     var map_chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
                     map_chart.draw(map_data, map_options);
 
@@ -74,7 +82,7 @@
                         ['Unclassified', data.other]
                     ]);
                     var pie_options = {
-                        title: 'Energy Mix'
+                        title: 'Energy Mix',
                     };
                     var pie_chart = new google.visualization.PieChart(document.getElementById('piechart'));
                     pie_chart.draw(pie_data, pie_options);
@@ -82,13 +90,13 @@
 
                 $.get( "http://localhost:5000/energyaccess/" + country + "/" + year, function( data ) {
                     console.log(data);
-                    $('#energy-access').empty()
-                    $('#energy-access').append('<h2>'+Math.round(data.energy_access)+'% of these people had access to electricity')
+                    $('#energy-access').empty();
+                    $('#energy-access').append('<h2>'+Math.round(data.energy_access)+'% of these people had access to electricity');
                 });
                 $.get( "http://localhost:5000/population/" + country + "/" + year, function( data ) {
                     console.log(data);
-                    $('#population').empty()
-                    $('#population').append('<h2>The population of '+data.country+' in '+data.year+' was '+ Math.round(data.population / 1000000) +' million<h2>')
+                    $('#population').empty();
+                    $('#population').append('<h2>The population of '+data.country+' in '+data.year+' was '+ Math.round(data.population / 1000000) +' million<h2>');
                 });
             }
     </script>
