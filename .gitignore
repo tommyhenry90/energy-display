@@ -3,3 +3,6 @@
 .idea/**/tasks.xml
 .idea/**/dictionaries
 .idea/**/shelf
+
+venv
+venv/**
