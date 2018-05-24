@@ -43,10 +43,10 @@ def energy_mix(country, year=2015):
     )
 
     mix = None
-    for e in EnergyMix.objects(country=country, year=year):
+    for e in EnergyMix.objects(country__iexact=country, year=year):
         mix = e
     if not mix:
-        response = jsonify(country=country, year=year)
+        response = jsonify(country__iexact=country, year=year)
         response.headers._list.append(('Access-Control-Allow-Origin', '*'))
         return response, 404
     energy_mix = {
@@ -78,10 +78,10 @@ def energy_access(country, year):
     )
 
     access = None
-    for e in EnergyAccess.objects(country=country, year=year):
+    for e in EnergyAccess.objects(country__iexact=country, year=year):
         access = e
     if not access:
-        response = jsonify(country=country, year=year)
+        response = jsonify(country__iexact=country, year=year)
         response.headers._list.append(('Access-Control-Allow-Origin', '*'))
         return response, 404
 
@@ -106,10 +106,10 @@ def population(country, year):
     )
 
     pop = None
-    for p in Population.objects(country=country, year=year):
+    for p in Population.objects(country__iexact=country, year=year):
         pop = p
     if not pop:
-        response = jsonify(country=country, year=year)
+        response = jsonify(country__iexact=country, year=year)
         response.headers._list.append(('Access-Control-Allow-Origin', '*'))
         return response, 404
 
@@ -134,10 +134,10 @@ def consumption(country, year):
     )
 
     cons = None
-    for p in EnergyConsumption.objects(country=country, year=year):
+    for p in EnergyConsumption.objects(country__iexact=country, year=year):
         cons = p
     if not cons:
-        response = jsonify(country=country, year=year)
+        response = jsonify(country__iexact=country, year=year)
         response.headers._list.append(('Access-Control-Allow-Origin', '*'))
         return response, 404
 
@@ -182,10 +182,10 @@ def recaps(country,year):
         port=17540
     )
 
-    if not EnergyReport.objects(country=country,year=year):
+    if not EnergyReport.objects(country__iexact=country,year=year):
         mix(country, year)
     result = None
-    for base in EnergyReport.objects(country=country,year=year):
+    for base in EnergyReport.objects(country__iexact=country,year=year):
         sources = list()
 
         for source in base.production_source:
@@ -204,10 +204,10 @@ def recaps(country,year):
         next_report = None
         prev_report = None
 
-        if EnergyMix.objects(country=country, year=year_next):
+        if EnergyMix.objects(country__iexact=country, year=year_next):
             next_report = "/".join(('/recaps', base.country, str(year_next)))
 
-        if EnergyMix.objects(country=country, year=year_prev):
+        if EnergyMix.objects(country__iexact=country, year=year_prev):
             prev_report = "/".join(('/recaps', base.country, str(year_prev)))
 
         delta = base.production_amount - base.consumption_amount
