@@ -144,7 +144,7 @@ def consumption(country, year):
     population_response = {
         "country": country,
         "year": year,
-        "population": cons.energy_consumption
+        "consumption": cons.energy_consumption
     }
     response = jsonify(population_response)
     response.headers._list.append(('Access-Control-Allow-Origin', '*'))
@@ -161,7 +161,7 @@ def reports(country,year):
         port=17540
     )
 
-    if not EnergyReport.object(country=country,year=year):
+    if not EnergyReport.objects(country=country,year=year):
         mix(country, year)
     result = None
     for base in EnergyReport.objects(country=country,year=year):
@@ -177,17 +177,7 @@ def reports(country,year):
 
         cons_per = base.consumption_amount / (base.population * base.energy_access / 100)
 
-        year_next = year + 1
-        year_prev = year - 1
 
-        next_report = None
-        prev_report = None
-
-        if EnergyReport.object(country=country, year=year_next):
-            next_report = "/".join('/reports', base.country, year_next)
-
-        if EnergyReport.object(country=country, year=year_prev):
-            prev_report = "/".join('/reports', base.country, year_prev)
 
         delta = base.production_amount - base.consumption_amount
         result = {
@@ -200,10 +190,7 @@ def reports(country,year):
             "sources": sources,
             "delta_energy": delta,
             "consumption_percapita": cons_per,
-            "link": {
-                "prev": prev_report,
-                "next": next_report
-            }
+
 
         }
     if result is None:
@@ -217,6 +204,21 @@ def reports(country,year):
         }
         response = jsonify(result)
         return response, 404
+
+@app.route("/countries/<parameter>", methods=["GET"])
+def countries_list(parameter):
+    connect(
+        db="comp9321ass3",
+        username="admin",
+        password="admin",
+        host="ds117540.mlab.com",
+        port=17540
+    )
+
+    ls = Population.objects(country__icontains = parameter).distinct(field="country")
+    response = jsonify(ls)
+    response.headers._list.append(('Access-Control-Allow-Origin', '*'))
+    return response, 200
 
 
 if __name__ == "__main__":
