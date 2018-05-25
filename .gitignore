@@ -6,6 +6,8 @@
 
 venv/**
 venv
+/venv/**
+/venv
 \.idea/
 
 *.pyc
