@@ -161,7 +161,7 @@ def greens(year):
         port=17540
     )
     result = list()
-    result.append(['country', 'greenness'])
+    result.append(['Country', 'Green Index'])
     for data in EnergyMix.objects(year=year):
 
         green_point = round(100 * (data.geothermal + data.hydro + data.solar + data.wind) / data.total_energy)
@@ -274,7 +274,7 @@ def growths(country):
         port=17540
     )
     result = list()
-    result.append(['year','combustibles', "geothermal", "hydro", "nuclear", "solar", "wind", "other"])
+    # result.append(['year','combustibles', "geothermal", "hydro", "nuclear", "solar", "wind", "other"])
     # "combustibles": mix.combustibles,
     # "geothermal": mix.geothermal,
     # "hydro": mix.hydro,
@@ -285,7 +285,7 @@ def growths(country):
     for annual in EnergyMix.objects(country__iexact=country):
 
         result.append([
-            annual.year,
+            str(annual.year),
             round(annual.combustibles / annual.total_energy * 100, 2),
             round(annual.geothermal / annual.total_energy * 100, 2),
             round(annual.hydro / annual.total_energy * 100, 2),
