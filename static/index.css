@@ -4,9 +4,9 @@
     /*justify-content:space-around;*/
 /*}*/
 
-#regions_div{
-    height: 50vh;
-}
+/*#regions_div{*/
+    /*height: 50vh;*/
+/*}*/
 
 #piechart{
     height: 50vh;
@@ -28,7 +28,12 @@
     padding-top: 1vh;
 }
 
-#additional-data{
-    text-align: center;
-    padding-top: 9vh;
-}
+/*#additional-data{*/
+    /*text-align: center;*/
+    /*padding-top: 20px;*/
+    /*align-self:center;*/
+/*}*/
+
+/*h2 {*/
+    /*text-align: center;*/
+/*}*/

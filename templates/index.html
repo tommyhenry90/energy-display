@@ -28,15 +28,16 @@
         <br><br>
         <div id="graphs">
             <div class="row">
+                <div id="globe"></div>
                 <div id="regions_div" class="col-lg-12"></div>
             </div>
             <br><br>
             <div id="additional-data" class="row col-lg-12">
-                <div id="population"></div>
-                <div id="energy-access"></div>
-                <div id="total-energy"></div>
+                <p id="population" class="text-center"></p><p id="energy-access" class="text-center"></p>
+{#                <div id="total-energy"></div>#}
             </div>
             <div class="row">
+                <div id="linechart"></div>
                 <div id="piechart" class="col-lg-12"></div>
             </div>
         </div>
@@ -53,6 +54,7 @@
     </script>
     <script>
         google.charts.load('current', {'packages':['corechart']});
+        google.charts.load('current', {'packages':['line']});
         {#google.charts.setOnLoadCallback(search_country);#}
         google.charts.load('current', {
             'packages': ['geochart'],
@@ -65,10 +67,12 @@
                 $.get( "http://localhost:5000/greens/" + year, function(data){
                     {#console.log(data);#}
                     var map_data = new google.visualization.arrayToDataTable(data);
-                    var map_options={'width': 1000, keepAspectRatio: true, magnifyingGlass:{enable: true, zoomFactor: 7.5}};
+                    var map_options={'width': 1112, 'height': 694};
                     var map_chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
                     map_chart.draw(map_data, map_options);
                     google.visualization.events.addListener(map_chart, 'select', selectHandler)
+                    $('#globe').empty();
+                    $('#globe').append('<h2>Global Green Index map in ' + year + ':</h2>');
                     function selectHandler() {
                         var selectedItem = map_chart.getSelection()[0];
                         if (selectedItem) {
@@ -102,15 +106,32 @@
                     pie_chart.draw(pie_data, pie_options);
                 });
 
+                $.get( "http://localhost:5000/growths/" + country, function(data){
+                    console.log(data);
+                    var line_data = new google.visualization.DataTable();
+                    line_data.addColumn('string', 'Year');
+                    line_data.addColumn('number', 'Combustibles');
+                    line_data.addColumn('number', 'Geothermal');
+                    line_data.addColumn('number', 'Hydro');
+                    line_data.addColumn('number', 'Nuclear');
+                    line_data.addColumn('number', 'Solar');
+                    line_data.addColumn('number', 'Wind');
+                    line_data.addColumn('number', 'Other');
+                    line_data.addRows(data)
+                    var line_options={'width': 900, 'height': 500};
+                    var line_chart = new google.charts.Line(document.getElementById('linechart'));
+                    line_chart.draw(line_data, line_options);
+                });
+
                 $.get( "http://localhost:5000/energyaccess/" + country + "/" + year, function( data ) {
                     console.log(data);
                     $('#energy-access').empty();
-                    $('#energy-access').append('<h2>'+Math.round(data.energy_access)+'% of these people had access to electricity');
+                    $('#energy-access').append('<h2>'+Math.round(data.energy_access)+'% of these people had access to electricity.</h2>');
                 });
                 $.get( "http://localhost:5000/population/" + country + "/" + year, function( data ) {
                     console.log(data);
                     $('#population').empty();
-                    $('#population').append('<h2>The population of '+data.country+' in '+data.year+' was '+ Math.round(data.population / 1000000) +' million<h2>');
+                    $('#population').append('<h2>The population of '+data.country+' in '+data.year+' was '+ Math.round(data.population / 1000000) +' million.<h2>');
                 });
         }
     </script>
