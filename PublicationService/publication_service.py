@@ -274,7 +274,7 @@ def growths(country):
         port=17540
     )
     result = list()
-    result.append(['year','combustibles', "geothermal", "hydro", "nuclear", "solar", "wind", "other"])
+    # result.append(['year','combustibles', "geothermal", "hydro", "nuclear", "solar", "wind", "other"])
     # "combustibles": mix.combustibles,
     # "geothermal": mix.geothermal,
     # "hydro": mix.hydro,
@@ -282,7 +282,7 @@ def growths(country):
     # "solar": mix.solar,
     # "wind": mix.wind,
     # "other": mix.other
-    for annual in EnergyMix.objects(country__iexact=country):
+    for annual in EnergyMix.objects(country__iexact=country).order_by('year'):
 
         result.append([
             annual.year,
