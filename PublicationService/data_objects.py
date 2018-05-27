@@ -90,6 +90,17 @@ class EnergyConsumption(Document):
         self.energy_consumption = energy_consumption
 
 
+class ConsumptionPercapita(Document):
+    country = StringField(required=True)
+    year = IntField(required=True)
+    consumption_percapita = FloatField()
+
+    def __init__(self, country, year, consumption_percapita=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.country = country
+        self.year = year
+        self.consumption_percapita = consumption_percapita
+
 class Population(Document):
     country = StringField(required=True)
     year = IntField(required=True)

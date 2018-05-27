@@ -1,7 +1,7 @@
 from flask import Flask, jsonify
 from flask_restful import reqparse
 import requests
-from PublicationService.data_objects import EnergyMix, EnergyAccess, Population,EnergyConsumption
+from PublicationService.data_objects import EnergyMix, EnergyAccess, Population,EnergyConsumption,ConsumptionPercapita
 from mongoengine import connect
 from importer import mix
 from model import EnergyReport, EnergySource
@@ -123,32 +123,32 @@ def population(country, year):
     return response, 200
 
 
-@app.route("/consumption/<country>/<year>", methods=["GET"])
-def consumption(country, year):
-    connect(
-        db="comp9321ass3",
-        username="admin",
-        password="admin",
-        host="ds117540.mlab.com",
-        port=17540
-    )
-
-    cons = None
-    for p in EnergyConsumption.objects(country__iexact=country, year=year):
-        cons = p
-    if not cons:
-        response = jsonify(country__iexact=country, year=year)
-        response.headers._list.append(('Access-Control-Allow-Origin', '*'))
-        return response, 404
-
-    population_response = {
-        "country": country,
-        "year": year,
-        "consumption": cons.energy_consumption
-    }
-    response = jsonify(population_response)
-    response.headers._list.append(('Access-Control-Allow-Origin', '*'))
-    return response, 200
+# @app.route("/consumption/<country>/<year>", methods=["GET"])
+# def consumption(country, year):
+#     connect(
+#         db="comp9321ass3",
+#         username="admin",
+#         password="admin",
+#         host="ds117540.mlab.com",
+#         port=17540
+#     )
+#
+#     cons = None
+#     for p in EnergyConsumption.objects(country__iexact=country, year=year):
+#         cons = p
+#     if not cons:
+#         response = jsonify(country__iexact=country, year=year)
+#         response.headers._list.append(('Access-Control-Allow-Origin', '*'))
+#         return response, 404
+#
+#     population_response = {
+#         "country": country,
+#         "year": year,
+#         "consumption": cons.energy_consumption
+#     }
+#     response = jsonify(population_response)
+#     response.headers._list.append(('Access-Control-Allow-Origin', '*'))
+#     return response, 200
 
 
 @app.route("/greens/<year>", methods=["GET"])
@@ -369,6 +369,82 @@ def growths(country):
     response.headers._list.append(('Access-Control-Allow-Origin', '*'))
     return response, 200
 
+
+@app.route("/consumption_growths/<country>", methods=["GET"])
+def consumption_growths(country):
+    connect(
+        db="comp9321ass3",
+        username="admin",
+        password="admin",
+        host="ds117540.mlab.com",
+        port=17540
+    )
+    result = list()
+
+    for rec_1 in EnergyConsumption.objects(country__iexact=country):
+        consumption = rec_1.energy_consumption
+        access = 0
+        for rec_2 in EnergyAccess.objects(country__iexact=country, year=rec_1.year):
+            access = rec_2.energy_access
+        population = 0
+        for rec_2 in Population.objects(country__iexact=country, year=rec_1.year):
+            population = rec_2.population
+
+        if (access and population):
+            per_capita = consumption * 1000000 / (population * access / 100)
+        else:
+            per_capita = 0
+        cons = ConsumptionPercapita(rec_1.country, rec_1.year, per_capita)
+        cons.save()
+        result.append([
+            rec_1.year,
+            round(per_capita, 2)
+        ])
+
+    response = jsonify(result)
+    response.headers._list.append(('Access-Control-Allow-Origin', '*'))
+    return response, 200
+
+
+@app.route("/consumption/<year>", methods=["GET"])
+def consumption(year):
+    connect(
+        db="comp9321ass3",
+        username="admin",
+        password="admin",
+        host="ds117540.mlab.com",
+        port=17540
+    )
+    result = list()
+
+    for rec_1 in EnergyConsumption.objects(year=year):
+        print(rec_1.country)
+
+        if ConsumptionPercapita.objects(year=year, country= rec_1.country).count():
+            for rec_2 in ConsumptionPercapita.objects(country= rec_1.country, year=year):
+                per_capita = rec_2.consumption_percapita
+        else:
+            consumption = rec_1.energy_consumption
+            access = 0
+            for rec_2 in EnergyAccess.objects(country= rec_1.country, year=year):
+                access = rec_2.energy_access
+            population = 0
+            for rec_2 in Population.objects(country=rec_1.country, year=year):
+                population = rec_2.population
+            if (access and population):
+                per_capita = consumption * 1000000 / (population * access / 100)
+            else:
+                per_capita = 0
+            cons = ConsumptionPercapita(rec_1.country, year, per_capita)
+            cons.save()
+        result.append([
+            rec_1.country,
+            round(per_capita, 2)
+        ])
+
+    response = jsonify(result)
+    response.headers._list.append(('Access-Control-Allow-Origin', '*'))
+    return response, 200
 
 
 if __name__ == "__main__":
