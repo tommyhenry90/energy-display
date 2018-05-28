@@ -206,13 +206,11 @@
                 function selectHandler() {
                     var selectedItem = line_chart.getSelection()[0];
                     if (selectedItem) {
-                        {#console.log(selectedItem)#}
-                        var value = line_data.getValue(selectedItem.row, 0);
-                        console.log(value)
-                        document.getElementById('year').value = value;
-                        {#window.scrollTo(0, 0);#}
-                        search_country()
-                        {#alert('The user selected ' + value);#}
+                        if(selectedItem.row) {
+                            var value = line_data.getValue(selectedItem.row, 0);
+                            document.getElementById('year').value = value;
+                            search_country()
+                        }
                     }
                 }
             });
