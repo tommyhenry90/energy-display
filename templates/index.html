@@ -149,7 +149,7 @@
             $.get( "http://localhost:5000/population/" + country + "/" + year, function( data ) {
                 console.log(data);
                 $('#population').empty();
-                $('#population').append('<h4>The population of ' + data.country + ' in ' + data.year + ' was ' + Math.round(data.population / 1000000) + ' million.</h4>');
+                $('#population').append('<h4>The population of ' + data.country + ' in ' + data.year + ' was ' + Math.round(data.population / 100000) / 10 + ' million.</h4>');
             });
         }
     </script>
