@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+			  integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+			  crossorigin="anonymous"></script>
 </head>
 <body>
     <div class="container">
@@ -55,6 +58,30 @@
             for (i=2015;i>=1990;i--){
                 $select.append($('<option></option>').val(i).html(i))
             }
+        });
+
+        $(function () {
+            var getData = function (request, response) {
+                $.getJSON(
+                    "http://localhost:5000/countries/" + request.term,
+                    function (data) {
+                        response(data);
+                    });
+            };
+
+            var selectItem = function (event, ui) {
+                $("#country").val(ui.item.value);
+                return false;
+            }
+
+            $("#country").autocomplete({
+                source: getData,
+                select: selectItem,
+                minLength: 3,
+                change: function() {
+                    $("#country").val("").css("display", 2);
+                }
+            });
         });
     </script>
     <script>
