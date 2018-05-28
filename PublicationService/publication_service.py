@@ -239,7 +239,6 @@ def countries_list(parameter):
         host="ds117540.mlab.com",
         port=17540
     )
-
     ls = Population.objects(country__icontains=parameter).distinct(field="country")
     response = jsonify(ls)
     response.headers._list.append(('Access-Control-Allow-Origin', '*'))
@@ -255,7 +254,7 @@ def growths(country):
         host="ds117540.mlab.com",
         port=17540
     )
-    result = list()
+    result = []
     # result.append(['year','combustibles', "geothermal", "hydro", "nuclear", "solar", "wind", "other"])
     # "combustibles": mix.combustibles,
     # "geothermal": mix.geothermal,
@@ -345,7 +344,10 @@ def growths(country):
         #     'year': annual.year,
         #     'sources': source
         # })
-
+    if not result:
+        response = jsonify(country=country)
+        response.headers._list.append(('Access-Control-Allow-Origin', '*'))
+        return response, 404
     response = jsonify(result)
     response.headers._list.append(('Access-Control-Allow-Origin', '*'))
     return response, 200

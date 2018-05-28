@@ -105,8 +105,9 @@
                 }
             });
 
-            $.get("http://localhost:5000/energymix/" + country + "/" + year, function(data){
-                console.log(data);
+            $.get("http://localhost:5000/energymix/" + country + "/" + year, function(data, status){
+                {#if (data.status = 404) {#}
+                console.log("The status is" + status);
 
                 var pie_data = new google.visualization.arrayToDataTable([
                     ['Energy Type', 'kWh'],
@@ -166,7 +167,7 @@
                 line_data.addColumn('number', 'Solar');
                 line_data.addColumn('number', 'Wind');
                 line_data.addColumn('number', 'Other');
-                line_data.addRows(data)
+                line_data.addRows(data);
                 var line_options={'width': 450, 'height': 250, vAxis: {format: 'percent'}};
                 var line_chart = new google.charts.Line(document.getElementById('linechart'));
                 line_chart.draw(line_data, line_options);
