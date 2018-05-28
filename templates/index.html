@@ -159,7 +159,7 @@
                                 'slow');
                         $.get("http://localhost:5000/globalfuel/" + fuel + "/" + year, function(data) {
                             var map_data = new google.visualization.arrayToDataTable(data);
-                            var map_options={'width': 1112, 'height': 694};
+                            var map_options={'width': 1112, 'height': 694, colorAxis: {colors:['#fffff0', 'orange']}};
                             var map_chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
                             map_chart.draw(map_data, map_options);
                             google.visualization.events.addListener(map_chart, 'select', selectHandler)
@@ -175,7 +175,7 @@
                                     var value = map_data.getValue(selectedItem.row, 0);
                                     {#console.log(value)#}
                                     document.getElementById('country').value = value
-                                    {#window.scrollTo(0, 0);#}
+                                    window.scrollTo(0, 0);
                                     search_country()
                                     {#alert('The user selected ' + value);#}
                                 }
