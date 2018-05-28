@@ -55,7 +55,7 @@
     <script>
         $(function(){
             var $select = $('#year');
-            for (i=2015;i>=1990;i--){
+            for (i=2015;i>=1999;i--){
                 $select.append($('<option></option>').val(i).html(i))
             }
         });
@@ -162,7 +162,7 @@
                             var map_options={'width': 1112, 'height': 694, colorAxis: {colors:['#fffff0', 'orange']}};
                             var map_chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
                             map_chart.draw(map_data, map_options);
-                            google.visualization.events.addListener(map_chart, 'select', selectHandler)
+                            google.visualization.events.addListener(map_chart, 'select', selectHandler);
                             $('#globe').empty();
                             $('#globe').append('<h2>Global '+ fuel +' map in ' + year + ':</h2>');
 
