@@ -122,7 +122,7 @@
                         var value = map_data.getValue(selectedItem.row, 0);
                         {#console.log(value)#}
                         document.getElementById('country').value = value
-                        {#window.scrollTo(0, 0);#}
+                        window.scrollTo(0, 0);
                         search_country()
                         {#alert('The user selected ' + value);#}
                     }
@@ -204,7 +204,7 @@
                         var value = line_data.getValue(selectedItem.row, 0);
                         console.log(value)
                         document.getElementById('year').value = value;
-                        window.scrollTo(0, 0);
+                        {#window.scrollTo(0, 0);#}
                         search_country()
                         {#alert('The user selected ' + value);#}
                     }
