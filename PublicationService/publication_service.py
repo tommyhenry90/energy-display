@@ -115,7 +115,7 @@ def consumption(country, year):
                 "year": year,
                 "consumption_percapita": {
                     "amount": r.consumption_percapita,
-                    "unit": "Kwh"
+                    "unit": "kWh"
                 }
             }
             response = jsonify(result)
