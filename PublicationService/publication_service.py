@@ -1,35 +1,12 @@
 from flask import Flask, jsonify
 from flask_restful import reqparse
 import requests
-from PublicationService.data_objects import EnergyMix, EnergyAccess, Population,EnergyConsumption,ConsumptionPercapita
+from PublicationService.data_objects import EnergyMix, EnergyAccess, Population, EnergyConsumption, ConsumptionPercapita
 from mongoengine import connect
 from importer import mix
 from model import EnergyReport, EnergySource
 
-WEATHER_API_KEY = "5cbcafaa45789c29e8f91194dbe498be"
 app = Flask(__name__)
-
-
-@app.route("/weather", methods=["GET"])
-def get_weather():
-    parser = reqparse.RequestParser()
-    parser.add_argument('city', type=str)
-    parser.add_argument('country', type=str)
-
-    args = parser.parse_args()
-
-    city = args.get('city')
-    country = args.get('country')
-
-    location = city + ',' + country
-
-    url = "https://api.openweathermap.org/data/2.5/weather"
-    payload = {
-        "q": location,
-        "APPID": WEATHER_API_KEY
-    }
-    r = requests.get(url, params=payload)
-    return jsonify(r.json()), 200
 
 
 @app.route("/energymix/<country>/<year>", methods=["GET"])
@@ -123,34 +100,6 @@ def population(country, year):
     return response, 200
 
 
-# @app.route("/consumption/<country>/<year>", methods=["GET"])
-# def consumption(country, year):
-#     connect(
-#         db="comp9321ass3",
-#         username="admin",
-#         password="admin",
-#         host="ds117540.mlab.com",
-#         port=17540
-#     )
-#
-#     cons = None
-#     for p in EnergyConsumption.objects(country__iexact=country, year=year):
-#         cons = p
-#     if not cons:
-#         response = jsonify(country__iexact=country, year=year)
-#         response.headers._list.append(('Access-Control-Allow-Origin', '*'))
-#         return response, 404
-#
-#     population_response = {
-#         "country": country,
-#         "year": year,
-#         "consumption": cons.energy_consumption
-#     }
-#     response = jsonify(population_response)
-#     response.headers._list.append(('Access-Control-Allow-Origin', '*'))
-#     return response, 200
-
-
 @app.route("/greens/<year>", methods=["GET"])
 def greens(year):
     connect(
@@ -163,7 +112,6 @@ def greens(year):
     result = list()
     result.append(['Country', 'Green Index'])
     for data in EnergyMix.objects(year=year):
-
         green_point = round(100 * (data.geothermal + data.hydro + data.solar + data.wind) / data.total_energy)
         result.append([data.country, green_point])
 
@@ -173,7 +121,7 @@ def greens(year):
 
 
 @app.route("/recaps/<country>/<year>", methods=["GET"])
-def recaps(country,year):
+def recaps(country, year):
     connect(
         db="comp9321ass3",
         username="admin",
@@ -182,14 +130,14 @@ def recaps(country,year):
         port=17540
     )
 
-    if not EnergyReport.objects(country__iexact=country,year=year):
+    if not EnergyReport.objects(country__iexact=country, year=year):
         mix(country, year)
     result = None
-    for base in EnergyReport.objects(country__iexact=country,year=year):
+    for base in EnergyReport.objects(country__iexact=country, year=year):
         sources = list()
 
         for source in base.production_source:
-            percent = round(source.amount/base.production_amount * 100,2)
+            percent = round(source.amount / base.production_amount * 100, 2)
             sources.append({
                 'type': source.energy_type,
                 'amount': source.amount,
@@ -221,11 +169,11 @@ def recaps(country,year):
                 "unit": "Gwh",
             },
             "consumption_percapita": {
-                "amount" : cons_per,
-                "unit"   : "Kwh",
+                "amount": cons_per,
+                "unit": "Kwh",
             },
-            "production":{
-                "amount" : base.production_amount,
+            "production": {
+                "amount": base.production_amount,
                 "unit": "Gwh",
             },
             "sources": sources,
@@ -259,10 +207,11 @@ def countries_list(parameter):
         port=17540
     )
 
-    ls = Population.objects(country__icontains = parameter).distinct(field="country")
+    ls = Population.objects(country__icontains=parameter).distinct(field="country")
     response = jsonify(ls)
     response.headers._list.append(('Access-Control-Allow-Origin', '*'))
     return response, 200
+
 
 @app.route("/growths/<country>", methods=["GET"])
 def growths(country):
@@ -283,7 +232,6 @@ def growths(country):
     # "wind": mix.wind,
     # "other": mix.other
     for annual in EnergyMix.objects(country__iexact=country).order_by('year'):
-
         result.append([
             str(annual.year),
             round(annual.combustibles / annual.total_energy * 100, 2),
@@ -389,8 +337,7 @@ def consumption_growths(country):
         population = 0
         for rec_2 in Population.objects(country__iexact=country, year=rec_1.year):
             population = rec_2.population
-
-        if (access and population):
+        if access and population:
             per_capita = consumption * 1000000 / (population * access / 100)
         else:
             per_capita = 0
@@ -420,13 +367,13 @@ def consumption(year):
     for rec_1 in EnergyConsumption.objects(year=year):
         print(rec_1.country)
 
-        if ConsumptionPercapita.objects(year=year, country= rec_1.country).count():
-            for rec_2 in ConsumptionPercapita.objects(country= rec_1.country, year=year):
+        if ConsumptionPercapita.objects(year=year, country=rec_1.country).count():
+            for rec_2 in ConsumptionPercapita.objects(country=rec_1.country, year=year):
                 per_capita = rec_2.consumption_percapita
         else:
             consumption = rec_1.energy_consumption
             access = 0
-            for rec_2 in EnergyAccess.objects(country= rec_1.country, year=year):
+            for rec_2 in EnergyAccess.objects(country=rec_1.country, year=year):
                 access = rec_2.energy_access
             population = 0
             for rec_2 in Population.objects(country=rec_1.country, year=year):
@@ -441,6 +388,35 @@ def consumption(year):
             rec_1.country,
             round(per_capita, 2)
         ])
+
+    response = jsonify(result)
+    response.headers._list.append(('Access-Control-Allow-Origin', '*'))
+    return response, 200
+
+
+@app.route("/globalfuel/<fueltype>/<year>")
+def fuel_summary(fueltype, year):
+    connect(
+        db="comp9321ass3",
+        username="admin",
+        password="admin",
+        host="ds117540.mlab.com",
+        port=17540
+    )
+    result = list()
+    result.append(['Country', fueltype])
+    # fuel_type_lookup = {
+    #     'Combustibles': "data.combustibles",
+    #     'Geothermal': "data.geothermal",
+    #     'Hydro': "data.hydro",
+    #     'Nuclear': "data.nuclear",
+    #     'Solar': "data.solar",
+    #     'Wind': "data.wind",
+    #     'Unclassified': "data.other"
+    # }
+    for data in EnergyMix.objects(year=year):
+        fuel_percentage = 100 * eval("data." + fueltype.lower()) / data.total_energy
+        result.append([data.country, fuel_percentage])
 
     response = jsonify(result)
     response.headers._list.append(('Access-Control-Allow-Origin', '*'))

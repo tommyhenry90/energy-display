@@ -104,7 +104,7 @@
                 }
             });
 
-            $.get( "http://localhost:5000/energymix/" + country + "/" + year, function(data){
+            $.get("http://localhost:5000/energymix/" + country + "/" + year, function(data){
                 console.log(data);
 
                 var pie_data = new google.visualization.arrayToDataTable([
@@ -122,6 +122,36 @@
                 };
                 var pie_chart = new google.visualization.PieChart(document.getElementById('piechart'));
                 pie_chart.draw(pie_data, pie_options);
+                google.visualization.events.addListener(pie_chart, 'select', selectFuel);
+                function selectFuel() {
+                    var selectedFuel = pie_chart.getSelection()[0];
+                    console.log(selectedFuel);
+                    if (selectedFuel){
+                        var fuel = pie_data.getValue(selectedFuel.row, 0);
+                        $.get("http://localhost:5000/globalfuel/" + fuel + "/" + year, function(data) {
+                            var map_data = new google.visualization.arrayToDataTable(data);
+                            var map_options={'width': 1112, 'height': 694};
+                            var map_chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
+                            map_chart.draw(map_data, map_options);
+                            google.visualization.events.addListener(map_chart, 'select', selectHandler)
+                            $('#globe').empty();
+                            $('#globe').append('<h2>Global '+ fuel +' map in ' + year + ':</h2>');
+                            function selectHandler() {
+                                var selectedItem = map_chart.getSelection()[0];
+                                if (selectedItem) {
+                                    {#console.log(selectedItem)#}
+                                    var value = map_data.getValue(selectedItem.row, 0);
+                                    {#console.log(value)#}
+                                    document.getElementById('country').value = value
+                                    window.scrollTo(0, 0);
+                                    search_country()
+                                    {#alert('The user selected ' + value);#}
+                                }
+                            }
+                        })
+                    }
+                }
+
             });
 
             $.get( "http://localhost:5000/growths/" + country, function(data){
