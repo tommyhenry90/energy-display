@@ -108,23 +108,54 @@ def consumption(country, year):
         port=17540
     )
 
-    cons = None
-    for p in EnergyConsumption.objects(country__iexact=country, year=year):
-        cons = p
-    if not cons:
-        response = jsonify(country__iexact=country, year=year)
+    if ConsumptionPercapita.objects(country__iexact=country, year=year).count():
+        for r in ConsumptionPercapita.objects(country__iexact=country, year=year):
+            result = {
+                "country": country,
+                "year": year,
+                "consumption_percapita": {
+                    "amount": r.consumption_percapita,
+                    "unit": "Kwh"
+                }
+            }
+            response = jsonify(result)
+            response.headers._list.append(('Access-Control-Allow-Origin', '*'))
+            return response, 200
+    else:
+        cons = EnergyConsumption.objects(country__iexact=country, year=year).count()
+        pop = Population.objects(country__iexact=country, year=year).count()
+        access = EnergyAccess.objects(country__iexact=country, year=year).count()
+
+        if not cons or not pop or not access:
+            response = jsonify(country__iexact=country, year=year)
+            response.headers._list.append(('Access-Control-Allow-Origin', '*'))
+            return response, 404
+
+        for r in EnergyConsumption.objects(country__iexact=country, year=year):
+            cons = r.energy_consumption
+        for r in Population.objects(country__iexact=country, year=year):
+            pop = r.population
+        for r in EnergyAccess.objects(country__iexact=country, year=year):
+            access = r.energy_access
+
+        if not cons or not pop or not access:
+            response = jsonify(country__iexact=country, year=year)
+            response.headers._list.append(('Access-Control-Allow-Origin', '*'))
+            return response, 404
+
+        per_capita = cons * 1000000 / (pop * access / 100)
+
+        t = ConsumptionPercapita(country,year,per_capita)
+        t.save()
+
+        result = {
+            "country": country,
+            "year": year,
+            "consumption": per_capita
+        }
+        response = jsonify(result)
         response.headers._list.append(('Access-Control-Allow-Origin', '*'))
-        return response, 404
-
-    population_response = {
-        "country": country,
-        "year": year,
-        "consumption": cons.energy_consumption
-    }
-
-    response = jsonify(population_response)
-    response.headers._list.append(('Access-Control-Allow-Origin', '*'))
-    return response, 200
+        return response, 200
 
 
 @app.route("/greens/<year>", methods=["GET"])
@@ -362,7 +393,7 @@ def fuel_summary(fueltype, year):
         host="ds117540.mlab.com",
         port=17540
     )
-    result = []
+    result = list()
     result.append(['Country', fueltype])
     for data in EnergyMix.objects(year=year):
         fuel_percentage = 100 * eval("data." + fueltype.lower()) / data.total_energy
