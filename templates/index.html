@@ -154,6 +154,9 @@
                     console.log(selectedFuel);
                     if (selectedFuel){
                         var fuel = pie_data.getValue(selectedFuel.row, 0);
+                        $('html,body').animate({
+                                scrollTop: $("#globe").offset().top},
+                                'slow');
                         $.get("http://localhost:5000/globalfuel/" + fuel + "/" + year, function(data) {
                             var map_data = new google.visualization.arrayToDataTable(data);
                             var map_options={'width': 1112, 'height': 694};
@@ -162,6 +165,9 @@
                             google.visualization.events.addListener(map_chart, 'select', selectHandler)
                             $('#globe').empty();
                             $('#globe').append('<h2>Global '+ fuel +' map in ' + year + ':</h2>');
+
+                            
+
                             function selectHandler() {
                                 var selectedItem = map_chart.getSelection()[0];
                                 if (selectedItem) {
