@@ -77,10 +77,7 @@
             $("#country").autocomplete({
                 source: getData,
                 select: selectItem,
-                minLength: 3,
-                change: function() {
-                    $("#country").val("").css("display", 2);
-                }
+                minLength: 3
             });
         });
     </script>
@@ -214,9 +211,9 @@
                 }
             });
 
-            $.get( "http://localhost:5000/consumption/" + country + "/" + year, function(data){
+            $.get( "http://localhost:5000/recaps/" + country + "/" + year, function(data){
                 $('#countrychart').empty();
-                $('#countrychart').append('<h4>Electricity consumption was ' + data.consumption + ' kWh in ' + data.year + '.');
+                $('#countrychart').append('<h4>Electricity consumption was ' + Math.round(data.consumption_percapita.amount) + ' kWh per capita in ' + data.year + '.');
             });
 
             $.get( "http://localhost:5000/energyaccess/" + country + "/" + year, function( data ) {
