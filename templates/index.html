@@ -32,7 +32,7 @@
         <br><br>
         <div id="graphs">
             <div id="additional-data" class="row text-center">
-                <div id="population"></div>&nbsp;<div id="energy-access"></div>
+                <div id="population"></div>&nbsp;<div id="energy-access"></div><div id="countrychart"></div>
             </div>
             <div class="row">
                 <div id="piechart" class="col-lg-6"></div>
@@ -41,6 +41,7 @@
             <br><br>
             <div class="row">
                 <div id="globe"></div>
+                <br>
                 <div id="regions_div" class="col-lg-12"></div>
             </div>
             <br><br>
@@ -183,6 +184,11 @@
                         {#alert('The user selected ' + value);#}
                     }
                 }
+            });
+
+            $.get( "http://localhost:5000/consumption/" + country + "/" + year, function(data){
+                $('#countrychart').empty();
+                $('#countrychart').append('<h4>Electricity consumption was ' + data.consumption + ' kWh in ' + data.year + '.');
             });
 
             $.get( "http://localhost:5000/energyaccess/" + country + "/" + year, function( data ) {

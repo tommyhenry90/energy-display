@@ -100,6 +100,39 @@ def population(country, year):
     return response, 200
 
 
+@app.route("/consumption/<country>/<year>", methods=["GET"])
+def consumption(country, year):
+    connect(
+        db="comp9321ass3",
+        username="admin",
+        password="admin",
+        host="ds117540.mlab.com",
+        port=17540
+    )
+
+    cons = None
+    for p in EnergyConsumption.objects(country__iexact=country, year=year):
+        cons = p
+    if not cons:
+        response = jsonify(country__iexact=country, year=year)
+        response.headers._list.append(('Access-Control-Allow-Origin', '*'))
+        return response, 404
+
+    population_response = {
+        "country": country,
+        "year": year,
+        "consumption": cons.energy_consumption
+    }
+
+    # population_response = [["Country", "Consumption"]]
+    #
+    # population_response.append([country, cons.energy_consumption])
+
+    response = jsonify(population_response)
+    response.headers._list.append(('Access-Control-Allow-Origin', '*'))
+    return response, 200
+
+
 @app.route("/greens/<year>", methods=["GET"])
 def greens(year):
     connect(
@@ -354,7 +387,7 @@ def consumption_growths(country):
 
 
 @app.route("/consumption/<year>", methods=["GET"])
-def consumption(year):
+def global_consumption(year):
     connect(
         db="comp9321ass3",
         username="admin",
