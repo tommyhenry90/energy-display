@@ -1,10 +1,8 @@
 from flask import Flask, jsonify
-from flask_restful import reqparse
-import requests
 from PublicationService.data_objects import EnergyMix, EnergyAccess, Population, EnergyConsumption, ConsumptionPercapita
 from mongoengine import connect
 from importer import mix
-from model import EnergyReport, EnergySource
+from model import EnergyReport
 
 app = Flask(__name__)
 
@@ -124,10 +122,6 @@ def consumption(country, year):
         "consumption": cons.energy_consumption
     }
 
-    # population_response = [["Country", "Consumption"]]
-    #
-    # population_response.append([country, cons.energy_consumption])
-
     response = jsonify(population_response)
     response.headers._list.append(('Access-Control-Allow-Origin', '*'))
     return response, 200
@@ -147,7 +141,10 @@ def greens(year):
     for data in EnergyMix.objects(year=year):
         green_point = round(100 * (data.geothermal + data.hydro + data.solar + data.wind) / data.total_energy)
         result.append([data.country, green_point])
-
+    if not result:
+        response = jsonify(year=year)
+        response.headers._list.append(('Access-Control-Allow-Origin', '*'))
+        return response, 404
     response = jsonify(result)
     response.headers._list.append(('Access-Control-Allow-Origin', '*'))
     return response, 200
@@ -215,7 +212,6 @@ def recaps(country, year):
                 "prev": prev_report,
                 "next": next_report
             }
-
         }
     if result is not None:
         response = jsonify(result)
@@ -255,14 +251,6 @@ def growths(country):
         port=17540
     )
     result = []
-    # result.append(['year','combustibles', "geothermal", "hydro", "nuclear", "solar", "wind", "other"])
-    # "combustibles": mix.combustibles,
-    # "geothermal": mix.geothermal,
-    # "hydro": mix.hydro,
-    # "nuclear": mix.nuclear,
-    # "solar": mix.solar,
-    # "wind": mix.wind,
-    # "other": mix.other
     for annual in EnergyMix.objects(country__iexact=country).order_by('year'):
         result.append([
             str(annual.year),
@@ -274,76 +262,6 @@ def growths(country):
             round(annual.wind / annual.total_energy * 100, 2),
             round(annual.other / annual.total_energy * 100, 2)
         ])
-        # source = list()
-
-        # # wind
-        # source.append({
-        #     'type' : 'wind',
-        #     'unit' : 'Gwh',
-        #     'amount': annual.wind,
-        #     'percent': round(annual.wind/annual.total_energy * 100,2)
-        #
-        # })
-        #
-        # # hydro
-        # source.append({
-        #     'type': 'hydro',
-        #     'unit': 'Gwh',
-        #     'amount': annual.hydro,
-        #     'percent': round(annual.hydro / annual.total_energy * 100, 2)
-        #
-        # })
-        #
-        # # solar
-        # source.append({
-        #     'type': 'solar',
-        #     'unit': 'Gwh',
-        #     'amount': annual.solar,
-        #     'percent': round(annual.solar / annual.total_energy * 100, 2)
-        #
-        # })
-        #
-        # # combustibles
-        # source.append({
-        #     'type': 'combustibles',
-        #     'unit': 'Gwh',
-        #     'amount': annual.combustibles,
-        #     'percent': round(annual.combustibles / annual.total_energy * 100, 2)
-        #
-        # })
-        #
-        # # nuclear
-        # source.append({
-        #     'type': 'nuclear',
-        #     'unit': 'Gwh',
-        #     'amount': annual.nuclear,
-        #     'percent': round(annual.nuclear / annual.total_energy * 100, 2)
-        #
-        # })
-        #
-        # # geothermal
-        # source.append({
-        #     'type': 'geothermal',
-        #     'unit': 'Gwh',
-        #     'amount': annual.geothermal,
-        #     'percent': round(annual.geothermal / annual.total_energy * 100, 2)
-        #
-        # })
-        #
-        # # other
-        # source.append({
-        #     'type': 'other',
-        #     'unit': 'Gwh',
-        #     'amount': annual.other,
-        #     'percent': round(annual.other / annual.total_energy * 100, 2)
-        #
-        # })
-        #
-        #
-        # result.append({
-        #     'year': annual.year,
-        #     'sources': source
-        # })
     if not result:
         response = jsonify(country=country)
         response.headers._list.append(('Access-Control-Allow-Origin', '*'))
@@ -382,7 +300,10 @@ def consumption_growths(country):
             rec_1.year,
             round(per_capita, 2)
         ])
-
+    if not result:
+        response = jsonify(country=country)
+        response.headers._list.append(('Access-Control-Allow-Origin', '*'))
+        return response, 404
     response = jsonify(result)
     response.headers._list.append(('Access-Control-Allow-Origin', '*'))
     return response, 200
@@ -423,7 +344,10 @@ def global_consumption(year):
             rec_1.country,
             round(per_capita, 2)
         ])
-
+    if not result:
+        response = jsonify(year=year)
+        response.headers._list.append(('Access-Control-Allow-Origin', '*'))
+        return response, 404
     response = jsonify(result)
     response.headers._list.append(('Access-Control-Allow-Origin', '*'))
     return response, 200
@@ -438,21 +362,15 @@ def fuel_summary(fueltype, year):
         host="ds117540.mlab.com",
         port=17540
     )
-    result = list()
+    result = []
     result.append(['Country', fueltype])
-    # fuel_type_lookup = {
-    #     'Combustibles': "data.combustibles",
-    #     'Geothermal': "data.geothermal",
-    #     'Hydro': "data.hydro",
-    #     'Nuclear': "data.nuclear",
-    #     'Solar': "data.solar",
-    #     'Wind': "data.wind",
-    #     'Unclassified': "data.other"
-    # }
     for data in EnergyMix.objects(year=year):
         fuel_percentage = 100 * eval("data." + fueltype.lower()) / data.total_energy
         result.append([data.country, fuel_percentage])
-
+    if not result:
+        response = jsonify(fueltype=fueltype, year=year)
+        response.headers._list.append(('Access-Control-Allow-Origin', '*'))
+        return response, 404
     response = jsonify(result)
     response.headers._list.append(('Access-Control-Allow-Origin', '*'))
     return response, 200
