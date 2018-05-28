@@ -97,7 +97,7 @@
                         var value = map_data.getValue(selectedItem.row, 0);
                         {#console.log(value)#}
                         document.getElementById('country').value = value
-                        window.scrollTo(0, 0);
+                        {#window.scrollTo(0, 0);#}
                         search_country()
                         {#alert('The user selected ' + value);#}
                     }
@@ -143,7 +143,7 @@
                                     var value = map_data.getValue(selectedItem.row, 0);
                                     {#console.log(value)#}
                                     document.getElementById('country').value = value
-                                    window.scrollTo(0, 0);
+                                    {#window.scrollTo(0, 0);#}
                                     search_country()
                                     {#alert('The user selected ' + value);#}
                                 }
@@ -169,6 +169,20 @@
                 var line_options={'width': 450, 'height': 250, vAxis: {format: 'percent'}};
                 var line_chart = new google.charts.Line(document.getElementById('linechart'));
                 line_chart.draw(line_data, line_options);
+
+                google.visualization.events.addListener(line_chart, 'select', selectHandler)
+                function selectHandler() {
+                    var selectedItem = line_chart.getSelection()[0];
+                    if (selectedItem) {
+                        {#console.log(selectedItem)#}
+                        var value = line_data.getValue(selectedItem.row, 0);
+                        console.log(value)
+                        document.getElementById('year').value = value;
+                        {#window.scrollTo(0, 0);#}
+                        search_country()
+                        {#alert('The user selected ' + value);#}
+                    }
+                }
             });
 
             $.get( "http://localhost:5000/energyaccess/" + country + "/" + year, function( data ) {
