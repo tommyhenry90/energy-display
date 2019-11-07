@@ -1,11 +1,11 @@
+import os
 from flask import Flask, jsonify
-from PublicationService.data_objects import EnergyMix, EnergyAccess, Population, EnergyConsumption, ConsumptionPercapita
+from PublicationService.dataobjects import EnergyMix, EnergyAccess, Population, EnergyConsumption, ConsumptionPercapita
 from mongoengine import connect
-from importer import mix
-from model import EnergyReport
+from PublicationService.importer import mix
+from PublicationService.model import EnergyReport
 
 app = Flask(__name__)
-
 
 @app.route("/energymix/<country>/<year>", methods=["GET"])
 def energy_mix(country, year=2015):
