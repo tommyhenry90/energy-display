@@ -63,7 +63,7 @@
         $(function () {
             var getData = function (request, response) {
                 $.getJSON(
-                    "http://localhost:5000/countries/" + request.term,
+                    "/countries/" + request.term,
                     function (data) {
                         response(data);
                     });
@@ -106,7 +106,7 @@
             var country = document.getElementById('country').value;
             var year = document.getElementById('year').value;
 
-            $.get( "http://localhost:5000/greens/" + year, function(data){
+            $.get( "/greens/" + year, function(data){
                 {#console.log(data);#}
                 var map_data = new google.visualization.arrayToDataTable(data);
                 var map_options={'width': 1112, 'height': 694};
@@ -129,7 +129,7 @@
                 }
             });
 
-            $.get("http://localhost:5000/energymix/" + country + "/" + year, function(data, status){
+            $.get("/energymix/" + country + "/" + year, function(data, status){
                 {#if (data.status = 404) {#}
                 console.log("The status is" + status);
 
@@ -157,7 +157,7 @@
                         $('html,body').animate({
                                 scrollTop: $("#globe").offset().top},
                                 'slow');
-                        $.get("http://localhost:5000/globalfuel/" + fuel + "/" + year, function(data) {
+                        $.get("/globalfuel/" + fuel + "/" + year, function(data) {
                             var map_data = new google.visualization.arrayToDataTable(data);
                             var map_options={'width': 1112, 'height': 694, colorAxis: {colors:['#fffff0', 'orange']}};
                             var map_chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
@@ -186,7 +186,7 @@
 
             });
 
-            $.get( "http://localhost:5000/growths/" + country, function(data){
+            $.get( "/growths/" + country, function(data){
                 console.log(data);
                 var line_data = new google.visualization.DataTable();
                 line_data.addColumn('string', 'Year');
@@ -215,17 +215,17 @@
                 }
             });
 
-            $.get( "http://localhost:5000/consumption/" + country + "/" + year, function(data){
+            $.get( "/consumption/" + country + "/" + year, function(data){
                 $('#countrychart').empty();
                 $('#countrychart').append('<h4>Electricity consumption was ' + Math.round(data.consumption_percapita.amount) + ' '+data.consumption_percapita.unit +' per capita in ' + data.year + '.');
             });
 
-            $.get( "http://localhost:5000/energyaccess/" + country + "/" + year, function( data ) {
+            $.get( "/energyaccess/" + country + "/" + year, function( data ) {
                 console.log(data);
                 $('#energy-access').empty();
                 $('#energy-access').append('<h4>' + Math.round(data.energy_access) + '% of these people had access to electricity. </h4>');
             });
-            $.get( "http://localhost:5000/population/" + country + "/" + year, function( data ) {
+            $.get( "/population/" + country + "/" + year, function( data ) {
                 console.log(data);
                 $('#population').empty();
                 $('#population').append('<h4>The population of ' + data.country + ' in ' + data.year + ' was ' + Math.round(data.population / 100000) / 10 + ' million.</h4>');
