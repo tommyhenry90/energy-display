@@ -1,6 +1,6 @@
-from flask import Flask, render_template
+from flask import Flask, jsonify, render_template
 from flask_cors import CORS
-from PublicationService.publication_service import *
+from PublicationService.publication_service import app
 
 CORS(app)
 
@@ -10,4 +10,4 @@ def hello_world():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=8090)
